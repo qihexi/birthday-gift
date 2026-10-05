@@ -1,0 +1,1382 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>她的小窝</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    width: 100vw; height: 100vh; overflow: hidden;
+    background: linear-gradient(to bottom, #e8f4f8 0%, #e8f4f8 70%, #fdf2e9 70%, #fdf2e9 100%);
+    position: relative;
+    font-family: 'Comic Sans MS', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  }
+
+  /* 毛毡板 */
+  .felt-board {
+    position: absolute; top: 8%; left: 6%;
+    width: 42%; height: 26%;
+    background: #d4b48c; border-radius: 14px;
+    box-shadow: inset 0 0 10px rgba(0,0,0,0.08), 0 8px 18px rgba(0,0,0,0.1);
+    padding: 10px;
+    display: flex; flex-wrap: wrap; justify-content: space-around; align-items: center; gap: 6px;
+    border: 3px solid #c9a87c; cursor: pointer;
+  }
+  .photo {
+    width: 28%; height: 42%; border-radius: 3px;
+    box-shadow: 0 3px 6px rgba(0,0,0,0.12);
+    position: relative; background-size: cover; background-position: center;
+    opacity: 0.45; transition: opacity 0.3s;
+  }
+  .felt-board:hover .photo { opacity: 0.7; }
+  .photo::before {
+    content: ''; position: absolute; top: -3px; left: 50%; transform: translateX(-50%);
+    width: 6px; height: 6px; background: #f7b731; border-radius: 50%; z-index: 2;
+  }
+  .photo:nth-child(1) { transform: rotate(-5deg); }
+  .photo:nth-child(2) { transform: rotate(3deg); }
+  .photo:nth-child(3) { transform: rotate(-2deg); }
+  .photo:nth-child(4) { transform: rotate(4deg); }
+  .photo:nth-child(5) { transform: rotate(-3deg); }
+
+  /* 爱豆 */
+  #idol-wrapper {
+    position: absolute; bottom: 12%; left: 58%;
+    transform: translateX(-50%);
+    width: 34vw; max-width: 180px;
+    z-index: 10; transition: transform 0.4s ease;
+    touch-action: none; cursor: grab;
+  }
+  #idol-wrapper.dragging { transition: none; cursor: grabbing; z-index: 30; }
+  #idol { width: 100%; display: block; animation: breathe 3s ease-in-out infinite; }
+  @keyframes breathe {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-5px); }
+  }
+
+  .item {
+    position: absolute; display: flex; align-items: center; justify-content: center;
+    font-size: 11px; color: #555; font-weight: bold;
+    z-index: 5; text-shadow: 0 1px 2px rgba(255,255,255,0.8);
+  }
+
+  /* 秋千 */
+  .swing {
+    right: 10%; bottom: 42%; width: 50px; height: 60px;
+    position: absolute; z-index: 5; cursor: pointer;
+  }
+  .swing::before {
+    content: ''; position: absolute; top: 0; left: 0;
+    width: 100%; height: 5px; background: #b8860b; border-radius: 3px;
+  }
+  .swing::after {
+    content: ''; position: absolute; top: 5px; left: 20%;
+    width: 3px; height: 40px; background: #c9a87c;
+    box-shadow: 27px 0 0 #c9a87c;
+  }
+  .swing .seat {
+    position: absolute; bottom: 12px; left: 10%;
+    width: 80%; height: 5px; background: #b8860b; border-radius: 3px;
+  }
+
+  /* 泡泡机 */
+  #bubble-machine {
+    position: absolute; right: 8%; bottom: 10%;
+    width: 60px; height: 60px;
+    z-index: 10; cursor: grab; touch-action: none;
+    transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  #bubble-machine.dragging { transition: none; cursor: grabbing; z-index: 30; }
+  #bubble-machine img { width: 100%; display: block; }
+
+  /* 小电视 */
+  .tv {
+    left: 8%; bottom: 26%; width: 64px; height: 50px;
+    background: #f5f5f5; border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1); border: 2px solid #ddd;
+    cursor: pointer;
+  }
+  .tv::after {
+    content: ''; position: absolute; top: 5px; left: 5px; right: 5px; bottom: 11px;
+    background: #b3e5fc; border-radius: 3px; transition: background 0.5s ease;
+  }
+  .tv.playing::after { background: #ffcc80; }
+
+  .tv-caption {
+    position: absolute; left: 4%; bottom: 21%; width: 80px;
+    text-align: center; font-size: 13px; color: #ff9a9e;
+    opacity: 0; transition: opacity 1.5s ease-in-out;
+    pointer-events: none; line-height: 1.3; font-weight: normal;
+    text-shadow: 0 1px 3px rgba(255,255,255,0.9);
+  }
+  .tv-caption.show { opacity: 1; }
+
+  /* 马克杯 */
+  .mug {
+    left: 22%; bottom: 8%; width: 40px; height: 46px;
+    background: #fff; border-radius: 6px 6px 14px 14px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1); border: 2px solid #eee;
+    cursor: grab; touch-action: none;
+    transition: transform 0.4s ease; will-change: transform;
+  }
+  .mug.dragging { transition: none; cursor: grabbing; z-index: 30; }
+  .mug::before {
+    content: ''; position: absolute; right: -10px; top: 8px;
+    width: 12px; height: 18px; border: 3px solid #eee; border-left: none;
+    border-radius: 0 8px 8px 0;
+  }
+  .mug::after {
+    content: '☕'; position: absolute; top: 6px; left: 50%; transform: translateX(-50%); font-size: 12px;
+  }
+
+  /* 星星 */
+  .star {
+    left: 10%; top: 38%; width: 40px; height: 40px;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; animation: starPulse 1.5s ease-in-out infinite alternate;
+    text-shadow: none;
+  }
+  .star-shape {
+    width: 32px; height: 32px;
+    background: radial-gradient(circle, #fff 20%, #f7b731 70%, transparent 100%);
+    clip-path: polygon(50% 0%, 65% 35%, 100% 50%, 65% 65%, 50% 100%, 35% 65%, 0% 50%, 35% 35%);
+    filter: drop-shadow(0 0 6px rgba(247,183,49,0.9));
+  }
+  @keyframes starPulse {
+    0% { transform: scale(0.9); filter: drop-shadow(0 0 4px rgba(247,183,49,0.5)); opacity: 0.7; }
+    100% { transform: scale(1.1); filter: drop-shadow(0 0 15px rgba(247,183,49,1)); opacity: 1; }
+  }
+
+  .sparkle {
+    position: absolute; color: #f7b731; font-size: 14px;
+    animation: twinkle 3s infinite alternate; z-index: 1;
+  }
+  .sparkle-1 { top: 34%; left: 50%; animation-delay: 0.5s; }
+  .sparkle-2 { top: 44%; right: 30%; animation-delay: 1.5s; }
+  .sparkle-3 { top: 58%; left: 36%; animation-delay: 2s; }
+  @keyframes twinkle {
+    0% { opacity: 0.4; transform: scale(0.8); }
+    100% { opacity: 1; transform: scale(1.1); }
+  }
+
+  /* 点击互动 */
+  .heart {
+    position: absolute; font-size: 24px; color: #ff6b81;
+    pointer-events: none; z-index: 20; opacity: 0;
+  }
+  .heart.show { animation: floatUp 1.2s ease-out forwards; }
+  @keyframes floatUp {
+    0% { opacity: 1; transform: translateY(0) scale(0.6); }
+    100% { opacity: 0; transform: translateY(-60px) scale(1.2); }
+  }
+
+  .speech {
+    position: absolute; background: #fff; color: #555;
+    font-size: 13px; padding: 6px 14px; border-radius: 16px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    pointer-events: none; z-index: 20; opacity: 0;
+    transition: opacity 0.3s; white-space: nowrap;
+  }
+  .speech.show { opacity: 1; animation: popIn 0.3s ease-out; }
+  @keyframes popIn { 0% { transform: scale(0.7); } 100% { transform: scale(1); } }
+
+  /* 秋千放大模式 */
+  .swing-mode {
+    position: fixed; inset: 0; background: rgba(232, 244, 248, 0.96);
+    z-index: 100; display: none; align-items: center; justify-content: center;
+  }
+  .swing-mode.active { display: flex; }
+  .exit-btn {
+    position: absolute; top: 20px; right: 20px;
+    padding: 8px 16px; background: #fff; border: none; border-radius: 20px;
+    font-size: 14px; color: #555; box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    cursor: pointer; z-index: 110;
+  }
+  .swing-stage { display: flex; align-items: center; justify-content: center; width: 100%; height: 100%; }
+  .swing-frame { position: relative; display: flex; flex-direction: column; align-items: center; }
+  .swing-bar { width: 200px; height: 10px; background: #b8860b; border-radius: 5px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+  .swing-pendulum { position: relative; width: 200px; height: 180px; transform-origin: top center; will-change: transform; }
+  .rope { position: absolute; top: 0; width: 3px; height: 170px; background: #c9a87c; border-radius: 2px; }
+  .rope-left { left: 40px; }
+  .rope-right { right: 40px; }
+  .swing-seat { position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); width: 130px; height: 14px; background: #b8860b; border-radius: 7px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+  .idol-container { position: absolute; bottom: 14px; left: 50%; transform: translateX(-50%); width: 110px; }
+  #idol-in-swing { width: 100%; display: block; object-fit: contain; }
+  .swing-emoji { position: absolute; top: -40px; left: 50%; transform: translateX(-50%); font-size: 30px; opacity: 0; transition: opacity 0.2s; pointer-events: none; }
+  .swing-emoji.show { opacity: 1; }
+
+  /* 泡泡 */
+  .bubble {
+    position: absolute; border-radius: 50%;
+    background:
+      radial-gradient(circle at 30% 28%, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0.15) 22%, transparent 40%),
+      radial-gradient(circle at 72% 78%, rgba(200,230,255,0.55) 0%, transparent 50%),
+      radial-gradient(circle at 35% 35%, rgba(255,220,240,0.5) 0%, rgba(200,240,255,0.3) 60%, rgba(255,255,255,0.05) 100%);
+    border: 1.5px solid rgba(255,255,255,0.7);
+    box-shadow:
+      inset -8px -12px 24px rgba(180,220,255,0.4),
+      inset 6px 10px 24px rgba(255,200,230,0.35),
+      0 0 22px rgba(200,220,255,0.6);
+    pointer-events: auto; cursor: crosshair; z-index: 15;
+  }
+  .bubble::before {
+    content: ''; position: absolute; top: 14%; left: 20%;
+    width: 26%; height: 20%;
+    background: radial-gradient(ellipse, rgba(255,255,255,0.95), transparent 70%);
+    border-radius: 50%; transform: rotate(-30deg);
+  }
+  .bubble::after { content: ''; position: absolute; inset: -16px; border-radius: 50%; }
+  .bubble.floating { animation: floaty 3s ease-in-out infinite alternate; }
+  @keyframes floaty {
+    0%   { transform: translate(0, 0) rotate(0deg); }
+    25%  { transform: translate(6px, -8px) rotate(2deg); }
+    50%  { transform: translate(0, -14px) rotate(0deg); }
+    75%  { transform: translate(-6px, -8px) rotate(-2deg); }
+    100% { transform: translate(0, 0) rotate(0deg); }
+  }
+
+  /* 掉落的小纸条 */
+  .note {
+    position: absolute; width: 60px; height: 60px;
+    background: #fff9e6; border-radius: 4px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 26px; cursor: pointer; z-index: 50;
+    transform-origin: center bottom;
+    animation: dropIn 0.8s cubic-bezier(0.18, 0.89, 0.32, 1.28) forwards;
+  }
+  @keyframes dropIn {
+    0% { transform: translateY(-500px) rotate(0deg); opacity: 0; }
+    100% { transform: translateY(0) rotate(10deg); opacity: 1; }
+  }
+
+  /* 通用弹窗 */
+  .note-modal {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.6);
+    display: none; align-items: center; justify-content: center; z-index: 200;
+  }
+  .note-modal.active { display: flex; }
+  .note-paper {
+    background: #fdfbf7; width: 85vw; max-width: 360px;
+    padding: 25px 20px; border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    font-size: 15px; line-height: 1.8; color: #444;
+    max-height: 70vh; overflow-y: auto; position: relative;
+  }
+  .typewriter-text { white-space: pre-wrap; }
+
+  /* 秋千纸条专属弹窗 */
+  .swing-note-modal {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.7);
+    display: none; align-items: center; justify-content: center; z-index: 300;
+  }
+  .swing-note-modal.active { display: flex; }
+  .swing-note-paper {
+    background: #fffdf5; width: 80vw; max-width: 320px;
+    padding: 30px 20px; border-radius: 12px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.4);
+    text-align: center; position: relative;
+    border: 2px dashed #e0d6b8;
+  }
+  .swing-note-text { font-size: 16px; line-height: 1.8; color: #555; margin-bottom: 20px; min-height: 50px; }
+  .swing-note-subtitle {
+    font-size: 14px; color: #d15b5b; line-height: 1.8;
+    min-height: 50px; margin-bottom: 15px;
+    transition: opacity 0.3s ease; opacity: 0;
+  }
+  .swing-note-subtitle.show { opacity: 1; }
+  .swing-note-btns { display: flex; flex-direction: column; gap: 12px; margin-top: 15px; }
+  .swing-note-btn {
+    padding: 12px; border: none; border-radius: 25px;
+    font-size: 15px; cursor: pointer; font-family: inherit;
+    background: #ffe4e1; color: #d15b5b; font-weight: bold;
+    transition: transform 0.2s;
+  }
+  .swing-note-btn:hover { transform: scale(1.03); }
+  .swing-note-btn.secondary { background: #e8f4f8; color: #6b8fa3; }
+  .swing-note-close {
+    position: absolute; top: 10px; right: 15px;
+    font-size: 20px; color: #aaa; cursor: pointer;
+    background: none; border: none;
+  }
+
+  /* 相册弹窗 */
+  .album-modal {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.75);
+    display: none; align-items: center; justify-content: center; z-index: 400;
+    backdrop-filter: blur(6px);
+  }
+  .album-modal.active { display: flex; }
+  .album-content {
+    background: #fffdf8; width: 85vw; max-width: 340px;
+    border-radius: 18px; padding: 25px 20px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+    text-align: center; position: relative;
+    border: 2px solid #f0e6d2;
+  }
+  .album-close {
+    position: absolute; top: 10px; right: 15px;
+    font-size: 22px; color: #bbb; cursor: pointer;
+    background: none; border: none;
+  }
+  .album-title {
+    font-size: 18px; color: #b8860b;
+    margin-bottom: 20px; font-weight: bold; letter-spacing: 1px;
+  }
+  .album-peek-btn {
+    padding: 14px 40px;
+    background: linear-gradient(135deg, #ffe4e1, #ffd1c1);
+    color: #d15b5b; font-weight: bold;
+    border: none; border-radius: 30px;
+    font-size: 16px; cursor: pointer;
+    box-shadow: 0 4px 12px rgba(209,91,91,0.3);
+    transition: transform 0.2s; font-family: inherit;
+  }
+  .album-peek-btn:hover { transform: scale(1.05); }
+  .album-viewer { display: none; flex-direction: column; align-items: center; position: relative; }
+  .album-viewer.active { display: flex; }
+  .album-photo-wrap {
+    width: 100%; height: 280px;
+    display: flex; align-items: center; justify-content: center;
+    overflow: hidden; position: relative;
+  }
+  .album-photo-wrap img {
+    max-width: 100%; max-height: 100%;
+    border-radius: 8px; box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+    transition: opacity 0.3s;
+  }
+  .album-nav {
+    position: absolute; top: 50%; transform: translateY(-50%);
+    background: rgba(255,255,255,0.9);
+    border: none; border-radius: 50%;
+    width: 36px; height: 36px; font-size: 22px; color: #b8860b;
+    cursor: pointer; z-index: 5;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    display: flex; align-items: center; justify-content: center; line-height: 1;
+  }
+  .album-nav.prev { left: 0; }
+  .album-nav.next { right: 0; }
+  .album-indicator { margin-top: 15px; font-size: 13px; color: #999; letter-spacing: 2px; }
+
+  /* 漂浮的小星星 */
+  .floating-star {
+    position: fixed; pointer-events: none; z-index: 100;
+    animation: starFloat 3s ease-out forwards;
+  }
+  @keyframes starFloat {
+    0% { transform: translateY(0) scale(0.5); opacity: 1; }
+    100% { transform: translateY(-150px) scale(1.5); opacity: 0; }
+  }
+
+  /* 水花 */
+  .water-splash {
+    position: absolute; pointer-events: none; z-index: 25;
+    font-size: 20px; animation: splashOut 1s ease-out forwards;
+  }
+  @keyframes splashOut {
+    0% { transform: translateY(0) scale(0.5); opacity: 1; }
+    100% { transform: translateY(80px) scale(1.2); opacity: 0; }
+  }
+
+  /* ====== 生日微电影样式 ====== */
+  .birthday-overlay {
+    position: fixed; inset: 0; background: #000;
+    z-index: 9999; display: none;
+    flex-direction: column; justify-content: center; align-items: center;
+    color: #fff; overflow: hidden; transition: opacity 1.5s ease;
+  }
+  .birthday-overlay.active { display: flex; }
+  .intro-stage {
+    position: absolute; inset: 0;
+    display: none; flex-direction: column; justify-content: center; align-items: center;
+  }
+  .intro-stage.active { display: flex; }
+
+  .particle-subtitle {
+    font-size: 22px; line-height: 2; text-align: center;
+    max-width: 80%; min-height: 150px; white-space: pre-wrap;
+    text-shadow: 0 0 10px rgba(255,255,255,0.8), 0 0 20px rgba(255,255,255,0.5), 0 0 30px rgba(200,220,255,0.3);
+    animation: textPulse 2s infinite alternate;
+  }
+  @keyframes textPulse {
+    0% { opacity: 0.8; text-shadow: 0 0 8px rgba(255,255,255,0.6); }
+    100% { opacity: 1; text-shadow: 0 0 15px rgba(255,255,255,0.9), 0 0 30px rgba(200,220,255,0.7); }
+  }
+
+  .emoji-cake {
+    font-size: 180px;
+    filter: drop-shadow(0 0 40px rgba(255, 200, 100, 0.9));
+    animation: cakeBounce 2s ease-in-out infinite;
+    margin-bottom: 80px;
+    line-height: 1;
+  }
+  @keyframes cakeBounce {
+    0%, 100% { transform: translateY(0) scale(1); }
+    50% { transform: translateY(-15px) scale(1.05); }
+  }
+
+  .star-burst {
+    position: fixed;
+    font-size: 28px;
+    font-weight: bold;
+    pointer-events: none;
+    z-index: 99999;
+    text-shadow: 0 0 10px currentColor, 0 0 20px currentColor, 0 0 30px #fff;
+    animation: starBurst 2s ease-out forwards;
+  }
+  @keyframes starBurst {
+    0% { transform: translate(-50%, -50%) scale(0.3) rotate(0deg); opacity: 1; }
+    100% { transform: translate(calc(-50% + var(--bx)), calc(-50% + var(--by))) scale(2) rotate(360deg); opacity: 0; }
+  }
+
+  .letter-prompt {
+    display: flex; flex-direction: column;
+    align-items: center; gap: 40px;
+    animation: letterFade 1.2s ease;
+  }
+  .letter-prompt p {
+    font-size: 36px; letter-spacing: 10px;
+    color: #fff; margin: 0;
+    text-shadow:
+      0 0 20px rgba(255,255,255,0.95),
+      0 0 40px rgba(255,200,220,0.8),
+      0 0 60px rgba(200,220,255,0.6);
+    animation: textPulse 2s infinite alternate;
+  }
+  @keyframes letterFade {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .blow-btn {
+    padding: 12px 30px; background: transparent; color: #fff;
+    border: 1px solid rgba(255,255,255,0.5); border-radius: 30px;
+    font-size: 16px; cursor: pointer; transition: all 0.3s;
+    font-family: inherit; letter-spacing: 2px;
+    text-shadow: 0 0 8px rgba(255,255,255,0.8);
+  }
+  .blow-btn:hover { background: rgba(255,255,255,0.1); box-shadow: 0 0 20px rgba(255,255,255,0.3); }
+
+  .wish-box { display: flex; flex-direction: column; align-items: center; gap: 20px; }
+  .wish-box p { font-size: 20px; text-shadow: 0 0 10px rgba(255,255,255,0.8); }
+  #wish-input {
+    width: 75vw; max-width: 300px; height: 100px;
+    background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.3);
+    border-radius: 12px; padding: 12px; color: #fff; font-size: 15px;
+    font-family: inherit; resize: none; outline: none;
+  }
+  #wish-input::placeholder { color: rgba(255,255,255,0.4); }
+  #release-wish-btn {
+    padding: 12px 30px; background: linear-gradient(135deg, #ffe4e1, #ffd1c1);
+    color: #d15b5b; font-weight: bold; border: none; border-radius: 30px;
+    font-size: 16px; cursor: pointer; transition: transform 0.2s; font-family: inherit;
+  }
+  #release-wish-btn:hover { transform: scale(1.05); }
+
+  .wish-paper {
+    font-size: 60px; opacity: 0; transform: translateY(100px) scale(0.5);
+    transition: all 2s ease-out;
+  }
+  .wish-paper.fly { opacity: 1; transform: translateY(-300px) scale(1.2) rotate(10deg); }
+
+  /* ====== 深夜信封与弹窗 ====== */
+  .night-envelope-modal {
+    position: fixed; inset: 0; background: rgba(20, 24, 45, 0.85);
+    display: none; align-items: center; justify-content: center; z-index: 5000;
+    backdrop-filter: blur(6px);
+  }
+  .night-envelope-modal.active { display: flex; }
+  .night-envelope-box {
+    background: #fff8ed;
+    padding: 40px 30px;
+    border-radius: 24px;
+    text-align: center;
+    box-shadow: 0 15px 40px rgba(255, 180, 150, 0.25);
+    border: 2px dashed #ffcdb2;
+    animation: envelopeFloat 3s ease-in-out infinite alternate;
+    width: 80vw; max-width: 300px;
+  }
+  @keyframes envelopeFloat {
+    0% { transform: translateY(0); }
+    100% { transform: translateY(-10px); }
+  }
+  .envelope-icon {
+    font-size: 70px;
+    margin-bottom: 20px;
+    filter: drop-shadow(0 10px 15px rgba(255,150,120,0.4));
+    animation: envelopePulse 1.5s infinite alternate;
+  }
+  @keyframes envelopePulse {
+    0% { transform: scale(1); }
+    100% { transform: scale(1.1); }
+  }
+  .envelope-text {
+    color: #d15b5b;
+    font-size: 20px;
+    font-weight: bold;
+    margin-bottom: 25px;
+    letter-spacing: 2px;
+    text-shadow: 0 1px 3px rgba(255,255,255,0.8);
+  }
+  .envelope-btn {
+    padding: 12px 35px;
+    background: linear-gradient(135deg, #ffb199, #ff8a80);
+    color: #fff;
+    border: none;
+    border-radius: 30px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 0 5px 15px rgba(255, 140, 120, 0.4);
+    transition: transform 0.2s;
+    font-family: inherit;
+  }
+  .envelope-btn:hover { transform: scale(1.05); }
+
+  /* 深夜对话弹窗 */
+  .night-modal {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.85);
+    display: none; align-items: center; justify-content: center; z-index: 5001;
+    backdrop-filter: blur(4px);
+  }
+  .night-modal.active { display: flex; }
+  .night-box {
+    background: #1a1a2e;
+    padding: 35px 25px;
+    border-radius: 20px;
+    width: 80vw; max-width: 340px;
+    text-align: center;
+    box-shadow: 0 0 40px rgba(150,180,255,0.3);
+    border: 1px solid rgba(150,180,255,0.3);
+  }
+  .night-box p {
+    color: #e0e8ff;
+    font-size: 16px;
+    line-height: 1.8;
+    margin-bottom: 25px;
+    text-shadow: 0 0 10px rgba(150,180,255,0.5);
+    min-height: 60px;
+  }
+  .night-btns {
+    display: flex; flex-direction: column; gap: 12px;
+  }
+  .night-btn {
+    padding: 12px; border: none; border-radius: 25px;
+    font-size: 15px; cursor: pointer; font-family: inherit;
+    background: linear-gradient(135deg, #a8c0ff, #c4d6ff);
+    color: #2a2a4a; font-weight: bold;
+    transition: transform 0.2s;
+    box-shadow: 0 0 15px rgba(150,180,255,0.4);
+  }
+  .night-btn:hover { transform: scale(1.03); }
+  .night-btn.secondary {
+    background: rgba(255,255,255,0.1);
+    color: #a8c0ff;
+    border: 1px solid rgba(168,192,255,0.4);
+  }
+
+  /* ====== 开发中图标 ====== */
+  .dev-icon {
+    position: fixed;
+    top: 20px; right: 20px;
+    font-size: 28px;
+    cursor: pointer;
+    z-index: 500;
+    animation: devPulse 2s ease-in-out infinite alternate;
+    filter: drop-shadow(0 0 8px rgba(255,200,100,0.8));
+    user-select: none;
+  }
+  @keyframes devPulse {
+    0% { transform: scale(1) rotate(-5deg); }
+    100% { transform: scale(1.15) rotate(5deg); }
+  }
+  .dev-modal {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.6);
+    display: none; align-items: center; justify-content: center; z-index: 6000;
+  }
+  .dev-modal.active { display: flex; }
+  .dev-box {
+    background: #fffdf5;
+    padding: 30px 25px;
+    border-radius: 18px;
+    width: 80vw; max-width: 300px;
+    text-align: center;
+    box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+    border: 2px dashed #e0d6b8;
+  }
+  .dev-box p {
+    color: #666;
+    font-size: 15px;
+    line-height: 1.6;
+  }
+  .dev-btns {
+    display: flex; flex-direction: column; gap: 10px; margin-top: 25px;
+  }
+  .dev-btn {
+    padding: 12px; border: none; border-radius: 25px;
+    font-size: 15px; cursor: pointer; font-family: inherit;
+    background: linear-gradient(135deg, #ffe4e1, #ffd1c1);
+    color: #d15b5b; font-weight: bold;
+    transition: transform 0.2s;
+  }
+  .dev-btn:hover { transform: scale(1.03); }
+  .dev-btn.secondary { background: #f0f0f0; color: #888; }
+
+  @media (max-width: 768px) {
+    .felt-board { height: 22%; left: 5%; width: 48%; }
+    #idol-wrapper { max-width: 140px; left: 60%; }
+    .swing { width: 44px; height: 54px; right: 12%; bottom: 42%; }
+    #bubble-machine { width: 52px; height: 52px; right: 10%; bottom: 10%; }
+    .tv { width: 56px; height: 44px; left: 6%; bottom: 28%; }
+    .tv-caption { left: 2%; bottom: 23%; width: 70px; font-size: 11px; }
+    .mug { width: 36px; height: 42px; left: 24%; bottom: 8%; }
+    .star { width: 36px; height: 36px; }
+    .star-shape { width: 28px; height: 28px; }
+    .album-photo-wrap { height: 240px; }
+    .emoji-cake { font-size: 140px; }
+    .letter-prompt p { font-size: 28px; letter-spacing: 6px; }
+  }
+</style>
+</head>
+<body>
+
+  <!-- ====== 生日微电影 ====== -->
+  <div id="birthday-overlay" class="birthday-overlay">
+    <div id="stage-my-blessing" class="intro-stage active">
+      <div id="my-blessing-subtitle" class="particle-subtitle"></div>
+    </div>
+
+    <div id="stage-cake" class="intro-stage">
+      <div class="emoji-cake">🎂</div>
+      <button id="blow-candle-btn" class="blow-btn">吹灭蜡烛 ✨</button>
+    </div>
+
+    <div id="stage-letter" class="intro-stage">
+      <div class="letter-prompt">
+        <p>猪猪来信</p>
+        <button id="open-letter-btn" class="blow-btn">点击查收 💌</button>
+      </div>
+    </div>
+
+    <div id="stage-idol-blessing" class="intro-stage">
+      <div id="idol-blessing-subtitle" class="particle-subtitle"></div>
+    </div>
+
+    <div id="stage-wish" class="intro-stage">
+      <div class="wish-box">
+        <p>写下你的愿望吧 ✨</p>
+        <textarea id="wish-input" placeholder="在这里写下你的愿望..."></textarea>
+        <button id="release-wish-btn">放飞愿望 🕊️</button>
+      </div>
+    </div>
+
+    <div id="stage-wish-flying" class="intro-stage">
+      <div class="wish-paper" id="wish-paper">📜</div>
+      <p id="wish-message" class="particle-subtitle"></p>
+    </div>
+  </div>
+
+  <audio id="my-blessing-audio" src="my-blessing.mp3" preload="auto"></audio>
+  <audio id="idol-blessing-audio" src="idol-blessing.mp3" preload="auto"></audio>
+
+  <!-- ====== 深夜信封 ====== -->
+  <div id="night-envelope-modal" class="night-envelope-modal">
+    <div class="night-envelope-box">
+      <div class="envelope-icon">💌</div>
+      <p class="envelope-text">猪猪深夜来信</p>
+      <button id="open-night-envelope" class="envelope-btn">点击查收</button>
+    </div>
+  </div>
+
+  <!-- ====== 深夜对话 ====== -->
+  <div id="night-modal" class="night-modal">
+    <div class="night-box">
+      <p id="night-text"></p>
+      <div id="night-btns" class="night-btns"></div>
+    </div>
+  </div>
+  <audio id="night-audio" src="night-audio.mp3" preload="auto"></audio>
+
+  <!-- ====== 开发中图标 ====== -->
+  <div id="dev-icon" class="dev-icon">🛠️</div>
+  <div id="dev-modal" class="dev-modal">
+    <div class="dev-box">
+      <p>🚧 更多小游戏正在开发中……</p>
+      <p style="font-size:13px;color:#999;margin-top:10px;">（作者太懒了，还在摸鱼）</p>
+      <div class="dev-btns">
+        <button id="dev-urge" class="dev-btn">催更</button>
+        <button id="dev-close" class="dev-btn secondary">关闭</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====== 日常主页 ====== -->
+  <div class="felt-board" id="felt-board">
+    <div class="photo" style="background-image: url('photo1.jpg')"></div>
+    <div class="photo" style="background-image: url('photo2.jpg')"></div>
+    <div class="photo" style="background-image: url('photo3.jpg')"></div>
+    <div class="photo" style="background-image: url('photo4.jpg')"></div>
+    <div class="photo" style="background-image: url('photo5.jpg')"></div>
+  </div>
+
+  <div id="idol-wrapper">
+    <img id="idol" src="idol.png" alt="爱豆">
+  </div>
+
+  <div class="heart" id="heart">❤️</div>
+  <div class="speech" id="speech"></div>
+
+  <div class="sparkle sparkle-1">✦</div>
+  <div class="sparkle sparkle-2">✧</div>
+  <div class="sparkle sparkle-3">✦</div>
+
+  <div class="swing" id="swing"><div class="seat"></div></div>
+  <div id="bubble-machine">
+    <img src="bubble.png" alt="泡泡机">
+  </div>
+
+  <div class="item tv" id="tv"></div>
+  <div class="item mug" id="mug"></div>
+  <div class="item star" id="star"><div class="star-shape"></div></div>
+
+  <div class="tv-caption" id="tv-caption">永远爱你是我说过</div>
+
+  <audio id="tv-audio" src="song.mp3" preload="auto"></audio>
+  <audio id="swing-note-audio" src="swing-note.mp3" preload="auto"></audio>
+
+  <!-- 秋千放大模式 -->
+  <div id="swing-mode" class="swing-mode">
+    <button id="exit-swing" class="exit-btn">✕ 退出</button>
+    <div class="swing-stage">
+      <div class="swing-frame">
+        <div class="swing-bar"></div>
+        <div class="swing-pendulum" id="swing-pendulum">
+          <div class="rope rope-left"></div>
+          <div class="rope rope-right"></div>
+          <div class="swing-seat">
+            <div class="idol-container">
+              <img id="idol-in-swing" src="idol.png" alt="爱豆">
+              <div id="swing-emoji" class="swing-emoji"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 打字机纸条弹窗 -->
+  <div id="note-modal" class="note-modal">
+    <div class="note-paper">
+      <div id="typewriter-text" class="typewriter-text"></div>
+    </div>
+  </div>
+
+  <!-- 秋千小纸条专属弹窗 -->
+  <div id="swing-note-modal" class="swing-note-modal">
+    <div class="swing-note-paper">
+      <button class="swing-note-close" id="swing-note-close">✕</button>
+      <div class="swing-note-text" id="swing-note-text"></div>
+      <div class="swing-note-subtitle" id="swing-note-subtitle"></div>
+      <div class="swing-note-btns" id="swing-note-btns">
+        <button class="swing-note-btn" id="btn-peek">那我必须偷看一下</button>
+        <button class="swing-note-btn secondary" id="btn-no-peek">不偷看猪猪的小秘密</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 相册弹窗 -->
+  <div id="album-modal" class="album-modal">
+    <div class="album-content">
+      <button class="album-close" id="album-close">✕</button>
+      <h2 class="album-title">帅气的猪猪相册</h2>
+      <button class="album-peek-btn" id="album-peek-btn">悄悄查看</button>
+      <div class="album-viewer" id="album-viewer">
+        <div class="album-photo-wrap">
+          <button class="album-nav prev" id="album-prev">‹</button>
+          <img id="album-img" src="" alt="照片">
+          <button class="album-nav next" id="album-next">›</button>
+        </div>
+        <div class="album-indicator" id="album-indicator">1 / 5</div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ==================== 基础元素 ====================
+    const wrapper = document.getElementById('idol-wrapper');
+    const idol = document.getElementById('idol');
+    const swing = document.getElementById('swing');
+    const heart = document.getElementById('heart');
+    const speech = document.getElementById('speech');
+    const bubbleMachine = document.getElementById('bubble-machine');
+    const mug = document.getElementById('mug');
+    const star = document.getElementById('star');
+    const tv = document.getElementById('tv');
+    const tvAudio = document.getElementById('tv-audio');
+    const tvCaption = document.getElementById('tv-caption');
+    const swingNoteAudio = document.getElementById('swing-note-audio');
+
+    const messages = ["好想你", "我一直在哦", "爱你", "今天你也超级棒", "要开心哦"];
+
+    // ==================== 相册逻辑 ====================
+    const albumPhotos = ['photo1.jpg', 'photo2.jpg', 'photo3.jpg', 'photo4.jpg', 'photo5.jpg'];
+    let currentPhotoIndex = 0;
+    const albumModal = document.getElementById('album-modal');
+    const albumPeekBtn = document.getElementById('album-peek-btn');
+    const albumViewer = document.getElementById('album-viewer');
+    const albumImg = document.getElementById('album-img');
+    const albumIndicator = document.getElementById('album-indicator');
+    const albumPrev = document.getElementById('album-prev');
+    const albumNext = document.getElementById('album-next');
+    const albumClose = document.getElementById('album-close');
+    const feltBoard = document.getElementById('felt-board');
+
+    feltBoard.addEventListener('click', function () {
+      albumModal.classList.add('active');
+      albumPeekBtn.style.display = 'inline-block';
+      albumViewer.classList.remove('active');
+      currentPhotoIndex = 0;
+    });
+
+    albumPeekBtn.addEventListener('click', function () {
+      albumPeekBtn.style.display = 'none';
+      albumViewer.classList.add('active');
+      currentPhotoIndex = 0;
+      updateAlbumPhoto();
+    });
+
+    function updateAlbumPhoto() {
+      albumImg.src = albumPhotos[currentPhotoIndex];
+      albumIndicator.textContent = (currentPhotoIndex + 1) + ' / ' + albumPhotos.length;
+    }
+
+    albumPrev.addEventListener('click', function (e) {
+      e.stopPropagation();
+      currentPhotoIndex = (currentPhotoIndex - 1 + albumPhotos.length) % albumPhotos.length;
+      updateAlbumPhoto();
+    });
+
+    albumNext.addEventListener('click', function (e) {
+      e.stopPropagation();
+      currentPhotoIndex = (currentPhotoIndex + 1) % albumPhotos.length;
+      updateAlbumPhoto();
+    });
+
+    albumClose.addEventListener('click', function () { albumModal.classList.remove('active'); });
+    albumModal.addEventListener('click', function (e) { if (e.target === albumModal) albumModal.classList.remove('active'); });
+
+    let touchStartX = 0;
+    albumImg.addEventListener('touchstart', function (e) { touchStartX = e.touches[0].clientX; });
+    albumImg.addEventListener('touchend', function (e) {
+      const dx = e.changedTouches[0].clientX - touchStartX;
+      if (Math.abs(dx) > 40) {
+        if (dx > 0) currentPhotoIndex = (currentPhotoIndex - 1 + albumPhotos.length) % albumPhotos.length;
+        else currentPhotoIndex = (currentPhotoIndex + 1) % albumPhotos.length;
+        updateAlbumPhoto();
+      }
+    });
+
+    // ==================== 点击爱豆互动 ====================
+    idol.addEventListener('click', function (e) {
+      if (wrapper.dataset.dragged === 'true') { wrapper.dataset.dragged = 'false'; return; }
+      const rect = idol.getBoundingClientRect();
+      heart.style.left = (rect.left + rect.width / 2 + 10) + 'px';
+      heart.style.top = (rect.top + 5) + 'px';
+      heart.classList.remove('show'); void heart.offsetWidth; heart.classList.add('show');
+
+      const msg = messages[Math.floor(Math.random() * messages.length)];
+      speech.textContent = msg;
+      speech.style.left = (rect.left + rect.width / 2 - 50) + 'px';
+      speech.style.top = (rect.top - 5) + 'px';
+      speech.classList.remove('show'); void speech.offsetWidth; speech.classList.add('show');
+
+      clearTimeout(speech._timer);
+      speech._timer = setTimeout(() => speech.classList.remove('show'), 1500);
+    });
+
+    // ==================== 爱豆拖拽逻辑 ====================
+    let isDragging = false, startX = 0, startY = 0, baseRect = null;
+    function onStart(e) {
+      if (e.button !== undefined && e.button !== 0) return;
+      const p = e.touches ? e.touches[0] : e;
+      isDragging = true; startX = p.clientX; startY = p.clientY;
+      baseRect = wrapper.getBoundingClientRect();
+      wrapper.classList.add('dragging'); wrapper.dataset.dragged = 'false';
+    }
+    function onMove(e) {
+      if (!isDragging) return; e.preventDefault();
+      const p = e.touches ? e.touches[0] : e;
+      const dx = p.clientX - startX; const dy = p.clientY - startY;
+      if (Math.abs(dx) > 5 || Math.abs(dy) > 5) wrapper.dataset.dragged = 'true';
+      wrapper.style.transform = `translate(calc(-50% + ${dx}px), ${dy}px)`;
+    }
+    function onEnd(e) {
+      if (!isDragging) return; isDragging = false; wrapper.classList.remove('dragging');
+      if (wrapper.dataset.dragged !== 'true') { wrapper.style.transform = 'translateX(-50%)'; return; }
+      const idolRect = wrapper.getBoundingClientRect();
+      const swingRect = swing.getBoundingClientRect();
+      const dist = Math.hypot(idolRect.left + idolRect.width/2 - (swingRect.left + swingRect.width/2), idolRect.top + idolRect.height/2 - (swingRect.top + swingRect.height/2));
+      if (dist < 90) {
+        wrapper.style.transform = 'translateX(-50%)'; wrapper.dataset.onSwing = 'true'; enterSwingMode();
+      } else {
+        wrapper.style.transform = 'translateX(-50%)'; wrapper.dataset.onSwing = 'false';
+      }
+    }
+    wrapper.addEventListener('mousedown', onStart); document.addEventListener('mousemove', onMove); document.addEventListener('mouseup', onEnd);
+    wrapper.addEventListener('touchstart', onStart, { passive: false }); document.addEventListener('touchmove', onMove, { passive: false }); document.addEventListener('touchend', onEnd);
+
+    // ==================== 秋千模式逻辑 ====================
+    const swingMode = document.getElementById('swing-mode');
+    const pendulum = document.getElementById('swing-pendulum');
+    const swingEmoji = document.getElementById('swing-emoji');
+    const exitSwing = document.getElementById('exit-swing');
+    const devIcon = document.getElementById('dev-icon');
+    let swingSpeed = 0, swingPhase = 0, swingActive = false, rafId = null, decayTimer = null, cryCount = 0, swingNoteDropped = false;
+
+    function enterSwingMode() {
+      swingActive = true; swingMode.classList.add('active');
+      swingSpeed = 0; swingPhase = 0; cryCount = 0; swingEmoji.classList.remove('show');
+      decayTimer = setInterval(() => { if (swingSpeed > 0) { swingSpeed *= 0.96; if (swingSpeed < 0.15) swingSpeed = 0; } }, 150);
+      devIcon.style.display = 'none';
+      swingLoop();
+    }
+    function exitSwingMode() {
+      swingActive = false; swingMode.classList.remove('active'); swingSpeed = 0; swingPhase = 0; cryCount = 0;
+      pendulum.style.transform = 'rotate(0deg)'; swingEmoji.classList.remove('show');
+      clearInterval(decayTimer); cancelAnimationFrame(rafId);
+      wrapper.style.transform = 'translateX(-50%)'; wrapper.dataset.onSwing = 'false';
+      devIcon.style.display = 'block';
+    }
+    function swingLoop() {
+      if (!swingActive) return;
+      swingPhase += 0.06 + swingSpeed * 0.025;
+      const angle = Math.sin(swingPhase) * Math.min(swingSpeed * 5, 40);
+      pendulum.style.transform = `rotate(${angle}deg)`;
+      if (swingSpeed > 4.5) { swingEmoji.textContent = '😭'; swingEmoji.classList.add('show'); }
+      else if (swingSpeed >= 0.5) { swingEmoji.textContent = '❤️'; swingEmoji.classList.add('show'); }
+      else { swingEmoji.classList.remove('show'); }
+      rafId = requestAnimationFrame(swingLoop);
+    }
+
+    document.querySelector('.swing-stage').addEventListener('click', function () {
+      swingSpeed += 2; if (swingSpeed > 12) swingSpeed = 12;
+      if (swingSpeed > 4.5 && !swingNoteDropped) {
+        cryCount++;
+        if (cryCount >= 4) { swingNoteDropped = true; dropSwingNote(); }
+      }
+    });
+
+    function dropSwingNote() {
+      const note = document.createElement('div'); note.className = 'note'; note.textContent = '📜';
+      const stageRect = document.querySelector('.swing-stage').getBoundingClientRect();
+      note.style.left = (stageRect.left + stageRect.width / 2 - 30) + 'px';
+      note.style.top = '15vh'; note.style.zIndex = '150'; note.style.cursor = 'pointer';
+      note.addEventListener('click', function () { openSwingNoteModal(); if (note.parentNode) note.parentNode.removeChild(note); });
+      document.body.appendChild(note);
+      const tip = document.createElement('div'); tip.className = 'speech';
+      tip.textContent = '哎呀！晃得太快，猪猪掉了一张纸条……';
+      tip.style.left = (window.innerWidth / 2 - 100) + 'px'; tip.style.top = '10vh'; tip.style.zIndex = '160';
+      tip.classList.add('show'); document.body.appendChild(tip);
+      setTimeout(() => { if (tip.parentNode) tip.parentNode.removeChild(tip); }, 4000);
+    }
+
+    // ==================== 秋千纸条弹窗 ====================
+    const swingNoteModal = document.getElementById('swing-note-modal');
+    const swingNoteText = document.getElementById('swing-note-text');
+    const swingNoteSubtitle = document.getElementById('swing-note-subtitle');
+    const swingNoteBtns = document.getElementById('swing-note-btns');
+    const btnPeek = document.getElementById('btn-peek');
+    const btnNoPeek = document.getElementById('btn-no-peek');
+    const swingNoteClose = document.getElementById('swing-note-close');
+
+    const subtitles = [
+      { start: 0, end: 2, text: '亲爱的' },
+      { start: 2, end: 5, text: '我希望你永远都不要那么疲惫' },
+      { start: 5, end: 10, text: '好好吃饭好好睡觉' },
+      { start: 10, end: 12, text: '永远都可以幸福' }
+    ];
+    let subtitleTimer = null;
+
+    function openSwingNoteModal() {
+      swingNoteModal.classList.add('active');
+      swingNoteText.textContent = '哎呀！秋千晃得太快，猪猪晕乎乎地掉出了一张小纸条……上面好像有他偷偷想对你说的话。';
+      swingNoteSubtitle.textContent = ''; swingNoteSubtitle.classList.remove('show');
+      swingNoteBtns.style.display = 'flex';
+    }
+    swingNoteClose.addEventListener('click', function () {
+      swingNoteModal.classList.remove('active'); swingNoteAudio.pause(); swingNoteAudio.currentTime = 0; clearInterval(subtitleTimer);
+    });
+    btnPeek.addEventListener('click', function () {
+      swingNoteBtns.style.display = 'none'; swingNoteText.textContent = '正在播放：猪猪的悄悄话……';
+      swingNoteAudio.currentTime = 0; swingNoteAudio.play();
+      clearInterval(subtitleTimer);
+      subtitleTimer = setInterval(() => {
+        const t = swingNoteAudio.currentTime;
+        const current = subtitles.find(s => t >= s.start && t < s.end);
+        if (current) { swingNoteSubtitle.textContent = current.text; swingNoteSubtitle.classList.add('show'); }
+        else { swingNoteSubtitle.classList.remove('show'); }
+      }, 100);
+    });
+    swingNoteAudio.addEventListener('ended', function () {
+      clearInterval(subtitleTimer); swingNoteSubtitle.classList.remove('show');
+      swingNoteText.textContent = '猪猪说，他永远都在陪着你。';
+      setTimeout(() => { swingNoteModal.classList.remove('active'); }, 2500);
+    });
+    btnNoPeek.addEventListener('click', function () {
+      swingNoteBtns.style.display = 'none'; swingNoteText.textContent = '哦哦。装你妈呢。';
+      setTimeout(() => { swingNoteModal.classList.remove('active'); }, 2000);
+    });
+
+    exitSwing.addEventListener('click', function (e) { e.stopPropagation(); exitSwingMode(); });
+
+    // ==================== 泡泡机逻辑 ====================
+    let isDraggingMachine = false, machineStartX = 0, machineStartY = 0, machineBaseRect = null, noteDropped = false;
+    function onMachineStart(e) {
+      if (e.button !== undefined && e.button !== 0) return;
+      const p = e.touches ? e.touches[0] : e;
+      isDraggingMachine = true; machineStartX = p.clientX; machineStartY = p.clientY;
+      machineBaseRect = bubbleMachine.getBoundingClientRect(); bubbleMachine.classList.add('dragging');
+    }
+    function onMachineMove(e) {
+      if (!isDraggingMachine) return; e.preventDefault();
+      const p = e.touches ? e.touches[0] : e;
+      bubbleMachine.style.transform = `translate(${p.clientX - machineStartX}px, ${p.clientY - machineStartY}px)`;
+    }
+    function onMachineEnd(e) {
+      if (!isDraggingMachine) return; isDraggingMachine = false; bubbleMachine.classList.remove('dragging');
+      const machineRect = bubbleMachine.getBoundingClientRect(); const idolRect = wrapper.getBoundingClientRect();
+      const dist = Math.hypot(machineRect.left + machineRect.width/2 - (idolRect.left + idolRect.width/2), machineRect.top + machineRect.height/2 - (idolRect.top + idolRect.height/2));
+      if (dist < 110) {
+        const targetLeft = idolRect.right - machineRect.width / 2; const targetTop = idolRect.bottom - machineRect.height;
+        bubbleMachine.style.transform = `translate(${targetLeft - machineBaseRect.left}px, ${targetTop - machineBaseRect.top}px)`;
+        setTimeout(() => { bubbleMachine.style.transform = 'translate(0, 0)'; }, 2600);
+        createBubbleBurst();
+      } else { bubbleMachine.style.transform = 'translate(0, 0)'; }
+    }
+    bubbleMachine.addEventListener('mousedown', onMachineStart); document.addEventListener('mousemove', onMachineMove); document.addEventListener('mouseup', onMachineEnd);
+    bubbleMachine.addEventListener('touchstart', onMachineStart, { passive: false }); document.addEventListener('touchmove', onMachineMove, { passive: false }); document.addEventListener('touchend', onMachineEnd);
+
+    let activeBubblePositions = [];
+    function createBubbleBurst() {
+      const count = 5 + Math.floor(Math.random() * 2);
+      for (let i = 0; i < count; i++) { setTimeout(() => createBubble(), i * 150); }
+    }
+    function createBubble() {
+      const bubble = document.createElement('div'); bubble.className = 'bubble';
+      const size = 35 + Math.random() * 35; bubble.style.width = size + 'px'; bubble.style.height = size + 'px';
+      const idolRect = wrapper.getBoundingClientRect();
+      const startX = idolRect.left + idolRect.width / 2 + (Math.random() * 60 - 30); const startY = idolRect.top + 40;
+      bubble.style.left = startX + 'px'; bubble.style.top = startY + 'px'; document.body.appendChild(bubble);
+      let targetX, targetY, overlapping, attempts = 0;
+      do {
+        overlapping = false; targetY = idolRect.top - 80 - Math.random() * 180; targetX = startX + (Math.random() * 100 - 50); attempts++;
+        for (let pos of activeBubblePositions) { if (Math.hypot(targetX - pos.x, targetY - pos.y) < 60) { overlapping = true; break; } }
+      } while (overlapping && attempts < 20);
+      activeBubblePositions.push({ x: targetX, y: targetY });
+      setTimeout(() => { activeBubblePositions = activeBubblePositions.filter(p => p.x !== targetX || p.y !== targetY); }, 12000);
+      requestAnimationFrame(() => { bubble.style.transition = 'left 1.6s ease-out, top 1.6s ease-out'; bubble.style.left = targetX + 'px'; bubble.style.top = targetY + 'px'; });
+      setTimeout(() => { bubble.classList.add('floating'); }, 1700);
+      bubble.addEventListener('click', function (e) { e.stopPropagation(); popBubble(bubble); });
+      setTimeout(() => { if (bubble.parentNode) bubble.parentNode.removeChild(bubble); }, 12000);
+    }
+    function popBubble(bubble) {
+      bubble.classList.remove('floating'); bubble.style.animation = 'none';
+      bubble.style.transition = 'all 0.15s ease-out'; bubble.style.transform = 'scale(0.5) rotate(8deg)'; bubble.style.opacity = '0';
+      setTimeout(() => { if (bubble.parentNode) bubble.parentNode.removeChild(bubble); }, 150);
+      if (!noteDropped && Math.random() < 0.1) { dropNote(); }
+    }
+    function dropNote() {
+      noteDropped = true; const note = document.createElement('div'); note.className = 'note'; note.textContent = '📜';
+      note.style.left = (window.innerWidth / 2 - 30) + 'px'; note.style.top = '20vh'; note.style.bottom = 'auto';
+      note.addEventListener('click', function () { openNoteModal(); if (note.parentNode) note.parentNode.removeChild(note); });
+      document.body.appendChild(note);
+    }
+
+    // ==================== 打字机纸条弹窗 ====================
+    const noteModal = document.getElementById('note-modal');
+    const typewriterText = document.getElementById('typewriter-text');
+    const noteContent = `老公，你终于触发这个彩蛋了。\n\n也不知道你这个非酋，到底点了多少次才掉出来呢，嘿嘿。\n\n你还记得你之前说过，怕自己运气不好，赶不上最好的事情吗？所以我偷偷把原本 5% 的概率，改成了 10%。怎么样，感动不？\n\n其实敲下每一行代码、想每个设计的时候，我脑海里全都是你探索玩耍时眉眼弯弯的模样。\n\n写这个网页的时候，我习惯写一点就给你报备一点，你每次都特别激动、特别感动。嘿嘿，现在你终于见到它了，也终于找到了这行字。\n\n我也终于，有机会把这份深刻的爱，送给最值得的你啦。\n\n猪猪让我转告你一句话哦，他说——\n\n“你是全天下最可爱最漂亮的女孩，他和我，都会一直陪着你的。辛苦啦！”\n\n继续玩吧老公，还有别的惊喜等着你。`;
+    let typeTimer = null;
+    function openNoteModal() {
+      noteModal.classList.add('active'); typewriterText.textContent = ''; let i = 0; clearInterval(typeTimer);
+      typeTimer = setInterval(() => {
+        if (i < noteContent.length) { typewriterText.textContent += noteContent[i]; i++; }
+        else { clearInterval(typeTimer); }
+      }, 60);
+    }
+    noteModal.addEventListener('click', function (e) { if (e.target === noteModal) { noteModal.classList.remove('active'); clearInterval(typeTimer); } });
+
+    // ==================== 小电视互动 ====================
+    tv.addEventListener('click', function () {
+      if (tvAudio.paused) { tvAudio.play(); tv.classList.add('playing'); tvCaption.classList.add('show'); }
+      else { tvAudio.pause(); tv.classList.remove('playing'); tvCaption.classList.remove('show'); }
+    });
+    tvAudio.addEventListener('ended', function () { tv.classList.remove('playing'); tvCaption.classList.remove('show'); });
+
+    // ==================== 马克杯拖拽互动 ====================
+    let isDraggingMug = false, mugStartX = 0, mugStartY = 0, mugBaseRect = null;
+    function onMugStart(e) {
+      if (e.button !== undefined && e.button !== 0) return;
+      const p = e.touches ? e.touches[0] : e;
+      isDraggingMug = true; mugStartX = p.clientX; mugStartY = p.clientY;
+      mugBaseRect = mug.getBoundingClientRect(); mug.classList.add('dragging');
+      mug.style.transition = 'none'; mug.style.transform = 'translate(0, 0)';
+    }
+    function onMugMove(e) {
+      if (!isDraggingMug) return; e.preventDefault();
+      const p = e.touches ? e.touches[0] : e;
+      mug.style.transform = `translate(${p.clientX - mugStartX}px, ${p.clientY - mugStartY}px)`;
+    }
+    function onMugEnd(e) {
+      if (!isDraggingMug) return; isDraggingMug = false; mug.classList.remove('dragging'); mug.style.transition = 'transform 0.4s ease';
+      const mugRect = mug.getBoundingClientRect(); const idolRect = wrapper.getBoundingClientRect();
+      const dist = Math.hypot(mugRect.left + mugRect.width / 2 - (idolRect.left + idolRect.width / 2), mugRect.top + mugRect.height / 2 - (idolRect.top + idolRect.height / 2));
+      if (dist < 110) {
+        const targetLeft = idolRect.left - mugRect.width; const targetTop = idolRect.bottom - mugRect.height;
+        const tx = targetLeft - mugBaseRect.left; const ty = targetTop - mugBaseRect.top;
+        if (Math.random() < 0.05) { triggerSpill(mugRect, tx, ty); }
+        else { mug.style.transform = `translate(${tx}px, ${ty}px)`; triggerDrink(); }
+        setTimeout(() => { mug.style.transform = 'translate(0, 0)'; }, 2500);
+      } else { mug.style.transform = 'translate(0, 0)'; }
+    }
+    mug.addEventListener('mousedown', onMugStart); document.addEventListener('mousemove', onMugMove); document.addEventListener('mouseup', onMugEnd);
+    mug.addEventListener('touchstart', onMugStart, { passive: false }); document.addEventListener('touchmove', onMugMove, { passive: false }); document.addEventListener('touchend', onMugEnd);
+
+    function triggerDrink() {
+      const rect = idol.getBoundingClientRect();
+      speech.textContent = "咕嘟咕嘟~"; speech.style.left = (rect.left + rect.width / 2 - 50) + 'px'; speech.style.top = (rect.top - 15) + 'px';
+      speech.classList.remove('show'); void speech.offsetWidth; speech.classList.add('show');
+      clearTimeout(speech._timer); speech._timer = setTimeout(() => speech.classList.remove('show'), 2000);
+      heart.style.left = (rect.left + rect.width / 2 + 10) + 'px'; heart.style.top = (rect.top + 5) + 'px';
+      heart.classList.remove('show'); void heart.offsetWidth; heart.classList.add('show');
+    }
+    function triggerSpill(mugRect, tx, ty) {
+      mug.style.transition = 'transform 0.3s ease-out'; mug.style.transform = `translate(${tx}px, ${ty}px) rotate(70deg)`;
+      const splash = document.createElement('div'); splash.className = 'water-splash'; splash.textContent = '💧';
+      splash.style.left = (mugRect.left + mugRect.width / 2 - 10) + 'px'; splash.style.top = (mugRect.top + mugRect.height / 2) + 'px';
+      document.body.appendChild(splash); setTimeout(() => { if (splash.parentNode) splash.parentNode.removeChild(splash); }, 1200);
+      setTimeout(() => {
+        const rect = idol.getBoundingClientRect();
+        const emoji = document.createElement('div'); emoji.className = 'heart'; emoji.textContent = '😵'; emoji.style.fontSize = '28px';
+        emoji.style.left = (rect.left + rect.width / 2 - 14) + 'px'; emoji.style.top = (rect.top - 20) + 'px'; emoji.classList.add('show');
+        document.body.appendChild(emoji); setTimeout(() => { if (emoji.parentNode) emoji.parentNode.removeChild(emoji); }, 2000);
+        speech.textContent = "妈咪你把我打湿了！"; speech.style.left = (rect.left + rect.width / 2 - 80) + 'px'; speech.style.top = (rect.top - 50) + 'px';
+        speech.classList.remove('show'); void speech.offsetWidth; speech.classList.add('show');
+        clearTimeout(speech._timer); speech._timer = setTimeout(() => speech.classList.remove('show'), 2500);
+      }, 800);
+      setTimeout(() => { mug.style.transition = 'transform 0.4s ease'; mug.style.transform = `translate(${tx}px, ${ty}px) rotate(0deg)`; }, 2000);
+    }
+
+    // ==================== 星星点击互动 ====================
+    star.addEventListener('click', function () { for (let i = 0; i < 15; i++) { setTimeout(() => createFloatingStar(), i * 60); } });
+    function createFloatingStar() {
+      const s = document.createElement('div'); s.className = 'floating-star'; s.textContent = '✦';
+      s.style.left = (Math.random() * 100) + 'vw'; s.style.top = (Math.random() * 100) + 'vh';
+      s.style.fontSize = (12 + Math.random() * 20) + 'px'; s.style.color = Math.random() > 0.5 ? '#f7b731' : '#ff6b81';
+      s.style.animationDelay = (Math.random() * 0.5) + 's'; document.body.appendChild(s);
+      setTimeout(() => { if (s.parentNode) s.parentNode.removeChild(s); }, 3500);
+    }
+
+        // ==================== 深夜信封与分支对话 ====================
+    const hour = new Date().getHours();
+    const FORCE_NIGHT = (hour >= 0 && hour < 5); // 凌晨 0 点到 5 点触发
+    const nightEnvelopeModal = document.getElementById('night-envelope-modal');
+    const nightModal = document.getElementById('night-modal');
+    const nightText = document.getElementById('night-text');
+    const nightBtns = document.getElementById('night-btns');
+    const nightAudio = document.getElementById('night-audio');
+
+    const nightSubtitles = [
+      { start: 0, end: 2, text: '喂 怎么还不睡呀' },
+      { start: 2, end: 4, text: '这么晚还不休息' },
+      { start: 4, end: 6, text: '是在想我嘛' },
+      { start: 6, end: 8, text: '我好想你啊' }
+    ];
+    let nightSubTimer = null;
+
+    function startNightFlow() {
+      // 显示信封
+      nightEnvelopeModal.classList.add('active');
+    }
+
+    document.getElementById('open-night-envelope').addEventListener('click', () => {
+      nightEnvelopeModal.classList.remove('active');
+      startNightDialog();
+    });
+
+    function startNightDialog() {
+      nightModal.classList.add('active');
+      nightText.textContent = '……';
+      nightBtns.innerHTML = '';
+      nightAudio.currentTime = 0;
+      nightAudio.play().catch(() => {});
+
+      // 字幕显示
+      clearInterval(nightSubTimer);
+      nightSubTimer = setInterval(() => {
+        const t = nightAudio.currentTime;
+        const current = nightSubtitles.find(s => t >= s.start && t < s.end);
+        if (current) {
+          if (nightText.textContent !== current.text) nightText.textContent = current.text;
+        }
+      }, 100);
+
+      nightAudio.addEventListener('ended', () => {
+        clearInterval(nightSubTimer);
+        nightText.textContent = '……';
+        setTimeout(() => {
+          nightText.textContent = '既然被猪猪抓住了，那就选一个吧——';
+          showNightChoice1();
+        }, 800);
+      }, { once: true });
+    }
+
+    function showNightChoice1() {
+      nightBtns.innerHTML = '';
+      const btnYes = document.createElement('button'); btnYes.className = 'night-btn'; btnYes.textContent = '是';
+      btnYes.onclick = () => { nightText.textContent = '不管是不是，都该睡啦，明天还要当最棒的自己呢。'; setTimeout(showNightChoice2, 2000); };
+      const btnNo = document.createElement('button'); btnNo.className = 'night-btn secondary'; btnNo.textContent = '不是';
+      btnNo.onclick = () => { nightText.textContent = '不管是不是，都该睡啦，明天还要当最棒的自己呢。'; setTimeout(showNightChoice2, 2000); };
+      nightBtns.appendChild(btnYes); nightBtns.appendChild(btnNo);
+    }
+    function showNightChoice2() {
+      nightText.textContent = '现在，选一个吧——'; nightBtns.innerHTML = '';
+      const btnOk = document.createElement('button'); btnOk.className = 'night-btn'; btnOk.textContent = '好的，我睡了';
+      btnOk.onclick = () => { nightText.textContent = '晚安，梦里见 🌙'; setTimeout(() => nightModal.classList.remove('active'), 2000); };
+      const btnSad = document.createElement('button'); btnSad.className = 'night-btn secondary'; btnSad.textContent = '心情不好，睡不着';
+      btnSad.onclick = () => {
+        nightText.textContent = '如果实在睡不着，可以打开抖音，找一个叫「栖和西」的人聊聊天。TA 会一直等你。'; nightBtns.innerHTML = '';
+        const btnClose = document.createElement('button'); btnClose.className = 'night-btn'; btnClose.textContent = '好，我去找 TA';
+        btnClose.onclick = () => { nightModal.classList.remove('active'); }; nightBtns.appendChild(btnClose);
+      };
+      nightBtns.appendChild(btnOk); nightBtns.appendChild(btnSad);
+    }
+
+    if (FORCE_NIGHT) { window.addEventListener('load', () => { setTimeout(startNightFlow, 1000); }); }
+
+    // ==================== 开发中图标 ====================
+    const devModal = document.getElementById('dev-modal');
+    const devUrge = document.getElementById('dev-urge');
+    const devClose = document.getElementById('dev-close');
+    let urgeCount = 0;
+    devIcon.addEventListener('click', () => { devModal.classList.add('active'); });
+    devClose.addEventListener('click', () => { devModal.classList.remove('active'); });
+    devUrge.addEventListener('click', () => {
+      urgeCount++;
+      const msgs = ['哦哦。', '催更无效', '神不想写', '神已经跑路了 写不了', '下次一定更'];
+      devUrge.textContent = msgs[Math.min(urgeCount - 1, msgs.length - 1)];
+      setTimeout(() => { devUrge.textContent = '催更'; }, 4000);
+    });
+    devModal.addEventListener('click', (e) => { if (e.target === devModal) devModal.classList.remove('active'); });
+
+    // ==================== 生日微电影逻辑 ====================
+    const today = new Date();
+    const FORCE_BIRTHDAY = (today.getMonth() === 9 && today.getDate() === 10); // 10月10日
+    const birthdayOverlay = document.getElementById('birthday-overlay');
+    const myBlessingAudio = document.getElementById('my-blessing-audio');
+    const idolBlessingAudio = document.getElementById('idol-blessing-audio');
+    const bgMusic = document.getElementById('tv-audio');
+
+    const mySubtitles = [
+      { start: 0, end: 2, text: 'hello 杨梅 生日快乐呀' },
+      { start: 2, end: 6, text: '今天是你生日 我知道你肯定会收到很多祝福' },
+      { start: 6, end: 9, text: '但是我还是想要用这种方式 给你做一些不一样的事情' },
+      { start: 9, end: 11, text: '你别急 先别乱点屏幕' },
+      { start: 11, end: 14, text: '接下来我有一个小惊喜要送给你' },
+      { start: 14, end: 19, text: '好啦我先不说话啦 你接下来听到的声音会比我更重要' },
+      { start: 19, end: 22, text: '最后祝你生日快乐' },
+      { start: 22, end: 24, text: '也祝你许下的所有愿望都能实现' },
+      { start: 25, end: 26, text: '我走啦~' }
+    ];
+    const idolSubtitles = [
+      { start: 0, end: 4, text: '宝宝生日快乐' },
+      { start: 4, end: 6, text: '今天要开开心心的' },
+      { start: 6, end: 9, text: '不要太累' },
+      { start: 9, end: 11, text: '也不要熬夜' },
+      { start: 11, end: 14, text: '好好吃饭 好好照顾自己' },
+      { start: 14, end: 17, text: '我会一直在你身边' },
+      { start: 17, end: 21, text: '陪你做想做的任何事' },
+      { start: 22, end: 24, text: '这样就够了' },
+      { start: 24, end: 999, text: '下面请听猪猪送上的生日歌🎵' }
+    ];
+
+    function playSubtitles(audio, subtitleEl, subtitles) {
+      let timer = setInterval(() => {
+        if (audio.paused || audio.ended) return;
+        const t = audio.currentTime;
+        const current = subtitles.find(s => t >= s.start && t < s.end);
+        if (current) { if (subtitleEl.textContent !== current.text) subtitleEl.textContent = current.text; }
+        else { subtitleEl.textContent = ''; }
+      }, 100);
+      audio.addEventListener('ended', () => clearInterval(timer), { once: true });
+    }
+    function showStage(stageId) { document.querySelectorAll('.intro-stage').forEach(el => el.classList.remove('active')); document.getElementById(stageId).classList.add('active'); }
+
+    function startBirthdayFlow() {
+      birthdayOverlay.classList.add('active');
+      bgMusic.currentTime = 0; bgMusic.volume = 0.3; bgMusic.loop = true; bgMusic.play();
+      showStage('stage-my-blessing');
+      myBlessingAudio.currentTime = 0; myBlessingAudio.play();
+      playSubtitles(myBlessingAudio, document.getElementById('my-blessing-subtitle'), mySubtitles);
+      myBlessingAudio.addEventListener('ended', () => { showStage('stage-cake'); }, { once: true });
+    }
+
+    document.getElementById('blow-candle-btn').addEventListener('click', () => {
+      createStarBurst();
+      setTimeout(() => { showStage('stage-letter'); }, 1800);
+    });
+
+    function createStarBurst() {
+      const cx = window.innerWidth / 2; const cy = window.innerHeight / 2;
+      for (let i = 0; i < 45; i++) {
+        const s = document.createElement('div'); s.className = 'star-burst'; s.textContent = '✦';
+        s.style.left = cx + 'px'; s.style.top = cy + 'px';
+        const angle = Math.random() * Math.PI * 2; const dist = 200 + Math.random() * 350;
+        s.style.setProperty('--bx', Math.cos(angle) * dist + 'px'); s.style.setProperty('--by', Math.sin(angle) * dist + 'px');
+        s.style.animationDelay = (Math.random() * 0.4) + 's';
+        s.style.fontSize = (20 + Math.random() * 20) + 'px';
+        s.style.color = Math.random() > 0.5 ? '#f7b731' : '#ff6b81';
+        document.body.appendChild(s); setTimeout(() => { if (s.parentNode) s.parentNode.removeChild(s); }, 2500);
+      }
+    }
+
+    document.getElementById('open-letter-btn').addEventListener('click', () => {
+      showStage('stage-idol-blessing');
+      idolBlessingAudio.currentTime = 0; idolBlessingAudio.play();
+      playSubtitles(idolBlessingAudio, document.getElementById('idol-blessing-subtitle'), idolSubtitles);
+      idolBlessingAudio.addEventListener('ended', () => { showStage('stage-wish'); }, { once: true });
+    });
+
+    document.getElementById('release-wish-btn').addEventListener('click', () => {
+      showStage('stage-wish-flying');
+      const wishPaper = document.getElementById('wish-paper'); const wishMessage = document.getElementById('wish-message');
+      setTimeout(() => { wishPaper.classList.add('fly'); }, 50);
+      setTimeout(() => { wishMessage.innerHTML = '愿望已经飞向星空啦 🌌<br>一定会实现的。'; wishMessage.style.opacity = '1'; wishMessage.style.transform = 'scale(1) translateY(0)'; }, 1500);
+      setTimeout(() => { wishMessage.style.transition = 'opacity 1s ease, transform 1s ease'; wishMessage.style.opacity = '0'; wishMessage.style.transform = 'scale(1.4) translateY(-20px)'; }, 3500);
+      setTimeout(() => {
+        wishMessage.innerHTML = '生日快乐，宝贝 🎂'; wishMessage.style.transition = 'none'; wishMessage.style.opacity = '0'; wishMessage.style.transform = 'scale(0.8) translateY(20px)';
+        void wishMessage.offsetWidth; wishMessage.style.transition = 'opacity 1.2s ease, transform 1.2s ease'; wishMessage.style.opacity = '1'; wishMessage.style.transform = 'scale(1) translateY(0)';
+      }, 4600);
+      setTimeout(() => {
+        let vol = 0.3;
+        const fadeOut = setInterval(() => { vol -= 0.02; if (vol <= 0) { clearInterval(fadeOut); bgMusic.pause(); bgMusic.volume = 1; } else { bgMusic.volume = vol; } }, 100);
+        birthdayOverlay.style.opacity = '0';
+        setTimeout(() => { birthdayOverlay.style.display = 'none'; birthdayOverlay.style.opacity = '1'; }, 2000);
+      }, 8000);
+    });
+
+    if (FORCE_BIRTHDAY) {
+      window.addEventListener('load', () => {
+        const startBtn = document.createElement('button');
+        startBtn.textContent = '🎂 点击开始';
+        startBtn.style.cssText = 'position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);padding:18px 40px;font-size:20px;border:none;border-radius:30px;background:linear-gradient(135deg,#ffe4e1,#ffd1c1);color:#d15b5b;font-weight:bold;cursor:pointer;z-index:10000;box-shadow:0 0 30px rgba(255,180,180,0.6);font-family:inherit;';
+        document.body.appendChild(startBtn);
+        startBtn.addEventListener('click', () => { startBtn.remove(); startBirthdayFlow(); });
+      });
+    }
+  </script>
+
+</body>
+</html>
