@@ -2,13 +2,13 @@
 <html lang="zh">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>她的小窝</title>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
 
   body {
-    width: 100vw; height: 100vh; overflow: hidden;
+    width: 100vw; height: 100vh; height: 100dvh; overflow: hidden;
     background: linear-gradient(to bottom, #e8f4f8 0%, #e8f4f8 70%, #fdf2e9 70%, #fdf2e9 100%);
     position: relative;
     font-family: 'Comic Sans MS', 'PingFang SC', 'Microsoft YaHei', sans-serif;
@@ -27,7 +27,7 @@
   .photo {
     width: 28%; height: 42%; border-radius: 3px;
     box-shadow: 0 3px 6px rgba(0,0,0,0.12);
-    position: relative; background-size: cover; background-position: center;
+    position: relative; background-size: cover; background-position: center; background-color: #f0dcc0;
     opacity: 0.45; transition: opacity 0.3s;
   }
   .felt-board:hover .photo { opacity: 0.7; }
@@ -579,8 +579,8 @@
 
   /* ====== 开发中图标 ====== */
   .dev-icon {
+    top: 20px; right: 20px; /* 右上角，工具栏上方 */
     position: fixed;
-    top: 20px; right: 20px;
     font-size: 28px;
     cursor: pointer;
     z-index: 500;
@@ -637,6 +637,267 @@
     .album-photo-wrap { height: 240px; }
     .emoji-cake { font-size: 140px; }
     .letter-prompt p { font-size: 28px; letter-spacing: 6px; }
+  }
+  /* ====== 右上角工具栏：签到在上，游戏大厅在正下方 ====== */
+  .quick-tools {
+    position: fixed; top: 65px; right: 20px;
+    display: flex; flex-direction: column; align-items: center; gap: 10px;
+    z-index: 500;
+  }
+  .coin-display {
+    background: rgba(255, 255, 255, 0.95); padding: 6px 14px;
+    border-radius: 30px; display: flex; align-items: center; justify-content: center; gap: 6px;
+    min-width: 84px;
+    font-size: 18px; font-weight: bold; color: #d15b5b;
+    box-shadow: 0 4px 15px rgba(255, 150, 150, 0.2); cursor: pointer;
+    border: 2px solid #ffe4e1; transition: transform 0.2s;
+    white-space: nowrap; user-select: none;
+  }
+  .coin-display:hover { transform: scale(1.05); }
+  .coin-display:active { transform: scale(0.97); }
+  .coin-icon { font-size: 22px; }
+
+  /* ====== 赛跑画面改造 ====== */
+  .stage {
+    position: fixed; inset: 0; z-index: 8000;
+    background: linear-gradient(180deg, #6FC2EC 0%, #8FD2F2 58%, #ACDEF6 100%);
+    overflow: hidden; font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+  }
+
+  /* 云朵 */
+  .cloud { position: absolute; height: 26px; width: 78px; background: rgba(255,255,255,.62); border-radius: 40px; }
+  .cloud::before, .cloud::after { content: ""; position: absolute; background: inherit; border-radius: 50%; }
+  .cloud::before { width: 38px; height: 38px; left: 12px; top: -16px; }
+  .cloud::after { width: 50px; height: 50px; right: 10px; top: -24px; }
+  .c1 { left: 8%; top: 14%; transform: scale(.9); }
+  .c2 { left: 32%; top: 6%; transform: scale(.62); opacity: .85; }
+  .c3 { right: 22%; top: 12%; transform: scale(.78); }
+  .c4 { right: 4%; top: 30%; transform: scale(.5); opacity: .7; }
+
+  /* 计时器 */
+  .hud { position: absolute; top: 9px; left: 50%; transform: translateX(-50%); display: flex; align-items: center; gap: 9px; padding: 7px 20px; background: #12384F; border-radius: 999px; box-shadow: 0 5px 0 rgba(8,38,55,.28), inset 0 -2px 0 rgba(255,255,255,.14); z-index: 60; }
+  .hud svg { width: 17px; height: 17px; opacity: .72; }
+  .hud .time { font-family: monospace; font-size: 20px; font-weight: 700; color: #FFF; }
+  .hud .tick { width: 6px; height: 6px; border-radius: 50%; background: #F5A623; box-shadow: 0 0 0 3px rgba(245,166,35,.22); }
+
+  /* 跑道 */
+  .track { position: absolute; left: 0; right: 0; top: 62px; bottom: 56px; display: flex; flex-direction: column; border-top: 6px solid #FFF; border-bottom: 6px solid #FFF; overflow: hidden; z-index: 10; }
+  .lane { position: relative; flex: 1 1 0; min-height: 0; display: flex; align-items: center; background-color: #C1855C; background-image: repeating-linear-gradient(0deg,rgba(255,255,255,.055) 0 1.5px,rgba(255,255,255,0) 1.5px 9px), radial-gradient(rgba(80,42,20,.16) 1px,rgba(80,42,20,0) 1.4px), radial-gradient(rgba(255,255,255,.14) 1.2px,rgba(255,255,255,0) 1.7px); background-size: auto, 9px 9px, 13px 13px; box-shadow: inset 0 -4px 8px rgba(120,66,34,.12); }
+  .lane:nth-child(even) { background-color: #BB7C51; }
+  .lane + .lane { border-top: 6px solid #FFF; }
+  .start-line { position: absolute; top: 0; bottom: 0; left: 3%; width: 7px; background: #FFF; opacity: .94; z-index: 20; }
+
+  /* 选手（去掉 left，改用 JS 控制） */
+  .runner { position: absolute; left: 5%; top: 50%; transform: translateY(-50%); display: flex; align-items: center; gap: 8px; z-index: 30; }
+  .runner .emoji { font-size: 40px; line-height: 1; filter: drop-shadow(0 5px 3px rgba(58,31,14,.32)); }
+  .runner .tag { display: flex; align-items: center; gap: 6px; padding: 5px 12px; background: #FFF7E8; color: #153448; border-radius: 999px; font-size: 12px; font-weight: 700; white-space: nowrap; box-shadow: 0 3px 0 rgba(90,50,25,.3); }
+  .runner .tag::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--c); flex: none; }
+  .r1 { --c: #F08A4B; }
+  .r2 { --c: #4FA3D1; }
+  .r3 { --c: #7BAE4B; }
+  .r4 { --c: #B36BC0; }
+
+  /* 右侧技能栏 */
+  .skills { transition: transform 0.3s ease, opacity 0.3s ease;position: absolute; top: 70px; right: 10px; bottom: 62px; width: 110px; display: flex; flex-direction: column; gap: 7px; padding: 9px; background: #12384F; border-radius: 18px; box-shadow: 0 8px 0 rgba(8,38,55,.26); z-index: 50; }
+  .skills .bar-title { margin: 0 0 1px; text-align: center; color: #FFE9C2; font-size: 11px; font-weight: 700; letter-spacing: 3px; }
+  .skill-btn { flex: 1 1 0; min-height: 0; display: flex; align-items: center; justify-content: center; text-align: center; padding: 4px 7px; background: #FFF7E8; color: #153448; border: none; border-radius: 14px; font-family: inherit; font-size: 12px; font-weight: 700; cursor: pointer; box-shadow: 0 4px 0 #C7B392; transition: transform .08s ease; }
+  .skill-btn:active { transform: translateY(4px); box-shadow: 0 0 0 #C7B392; }
+  .skill-btn:disabled { opacity: 0.5; cursor: not-allowed; box-shadow: 0 2px 0 #C7B392; }
+  .skill-btn.used { background: #dce9dd; color: #52705c; }
+.skills.collapsed {
+    transform: translateX(150%);
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .toggle-skills {
+    position: absolute;
+    top: 70px; right: 10px;
+    width: 30px; height: 30px;
+    background: #12384F; color: #FFE9C2;
+    border: 2px solid rgba(255,255,255,.22);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; cursor: pointer; z-index: 60;
+    transition: transform 0.3s ease, right 0.3s ease;
+  }
+
+  /* 折叠后，小箭头贴在屏幕最右侧（不旋转，文字保持正向） */
+  .toggle-skills.collapsed {
+    right: 0;
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+    transform: translateX(50%);
+  }
+  /* 左下角放弃 */
+  .quit { position: absolute; left: 10px; bottom: 10px; display: flex; align-items: center; gap: 6px; padding: 7px 15px; background: #12384F; color: #FFE9C2; border: 2px solid rgba(255,255,255,.22); border-radius: 11px; font-size: 13px; font-weight: 700; cursor: pointer; box-shadow: 0 4px 0 rgba(8,38,55,.3); z-index: 55; }
+  .quit:active { transform: translateY(3px); box-shadow: 0 1px 0 rgba(8,38,55,.3); }
+
+  /* 大厅弹窗样式统一放在下方「游戏大厅弹窗」区块 */
+  /* ====== 签到日历弹窗 ====== */
+  .signin-modal {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.6);
+    display: none; align-items: center; justify-content: center; z-index: 6000;
+    backdrop-filter: blur(4px);
+  }
+  .signin-modal.active { display: flex; }
+  .signin-box {
+    background: #fffdf5;
+    padding: 25px 20px;
+    border-radius: 24px;
+    width: 85vw; max-width: 340px;
+    text-align: center;
+    box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+    border: 2px dashed #ffcdb2;
+    animation: popIn 0.3s ease-out;
+  }
+  .signin-box h2 {
+    color: #d15b5b; font-size: 22px; margin-bottom: 15px;
+  }
+
+  /* 日历样式 */
+  .calendar-header {
+    display: grid; grid-template-columns: repeat(7, 1fr);
+    font-size: 12px; color: #aaa; margin-bottom: 10px;
+  }
+  .calendar-grid {
+    display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px;
+    margin-bottom: 25px;
+  }
+  .cal-day {
+    aspect-ratio: 1;
+    background: #f5f5f5;
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px; color: #888; position: relative;
+  }
+  .cal-day.is-today {
+    border: 2px solid #ffb6c1; background: #fff;
+    color: #d15b5b; font-weight: bold;
+  }
+  .cal-day.signed {
+    background: #ffe4e1; color: #d15b5b; font-weight: bold;
+  }
+  /* 签到过的小圆点 */
+  .cal-day.signed::after {
+    content: ''; position: absolute; bottom: 4px; left: 50%; transform: translateX(-50%);
+    width: 4px; height: 4px; background: #d15b5b; border-radius: 50%;
+  }
+
+  /* 按钮 */
+  .signin-btn {
+    width: 100%; padding: 12px; border: none; border-radius: 30px;
+    background: linear-gradient(135deg, #ffe4e1, #ffd1c1);
+    color: #d15b5b; font-weight: bold; font-size: 16px;
+    cursor: pointer; transition: transform 0.2s; font-family: inherit;
+    box-shadow: 0 4px 10px rgba(209,91,91,0.2);
+    margin-bottom: 10px;
+  }
+  .signin-btn:hover { transform: scale(1.02); }
+  .signin-btn:disabled {
+    background: #eee; color: #aaa; cursor: not-allowed; box-shadow: none;
+  }
+  .close-btn {
+    background: none; border: none; color: #aaa; font-size: 14px; cursor: pointer;
+  }
+
+  /* ====== 游戏大厅入口：签到图标正下方，居中对齐 ====== */
+  .game-hall-icon {
+    width: 44px; height: 44px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 28px; line-height: 1; cursor: pointer;
+    background: rgba(255, 255, 255, 0.95);
+    border: 2px solid #d8efff; border-radius: 50%;
+    box-shadow: 0 4px 15px rgba(100, 200, 255, 0.28);
+    filter: drop-shadow(0 0 8px rgba(100, 200, 255, 0.55));
+    transition: transform 0.2s; user-select: none;
+  }
+  .game-hall-icon:hover { transform: scale(1.1); }
+  .game-hall-icon:active { transform: scale(0.96); }
+
+  /* ====== 游戏大厅弹窗 ====== */
+  .game-hall-modal {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.6);
+    display: none; align-items: center; justify-content: center; z-index: 7000;
+    backdrop-filter: blur(4px);
+  }
+  .game-hall-modal.active { display: flex; }
+  .game-hall-box {
+    background: #fffdf5; width: 85vw; max-width: 340px;
+    border-radius: 20px; padding: 25px 20px; text-align: center;
+    box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+  }
+  .game-hall-box h2 { color: #b8860b; margin-bottom: 20px; }
+  .game-list { display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px; }
+  .game-item {
+    display: flex; align-items: center; gap: 15px;
+    background: #f5f5f5; padding: 15px; border-radius: 12px;
+    border: 2px solid transparent;
+  }
+  .game-item.active {
+    background: #ffe4e1; border-color: #ffb6c1; cursor: pointer;
+    transition: transform 0.2s;
+  }
+  .game-item.active:hover { transform: scale(1.02); }
+  .game-item.active:active { transform: scale(0.98); }
+  .game-icon { font-size: 32px; }
+  .game-info h3 { color: #d15b5b; font-size: 16px; margin-bottom: 4px; }
+  .game-info p { color: #888; font-size: 12px; }
+
+ 
+
+  /* ====== 轻提示 ====== */
+  .toast {
+    position: fixed; left: 50%; bottom: 9%;
+    transform: translate(-50%, 20px);
+    background: rgba(26, 26, 46, 0.92); color: #fff;
+    padding: 12px 22px; border-radius: 30px;
+    font-size: 14px; line-height: 1.6; text-align: center;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+    z-index: 12000; opacity: 0; pointer-events: none;
+    max-width: 82vw;
+    transition: opacity 0.3s ease, transform 0.3s ease;
+  }
+  .toast.show { opacity: 1; transform: translate(-50%, 0); }
+
+  /* ====== 细节打磨 ====== */
+  body { -webkit-user-select: none; user-select: none; }
+  #wish-input { -webkit-user-select: text; user-select: text; }
+  img { -webkit-user-drag: none; }
+  [role="button"] { -webkit-tap-highlight-color: transparent; }
+  .album-photo-wrap { background: #f7ead4; border-radius: 12px; }
+    /* 麦克风按钮 */
+  .mic-btn {
+    flex: 0 0 36px;
+    background: #F5A623;
+    color: #FFF;
+    border: none;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 0 4px 0 #C47B00;
+    transition: transform 0.1s;
+    margin-bottom: 4px;
+  }
+  .mic-btn:active { transform: translateY(4px); box-shadow: 0 0 0 #C47B00; }
+  .mic-btn.listening {
+    background: #E74C3C;
+    box-shadow: 0 4px 0 #A93226;
+    animation: pulseMic 1s infinite alternate;
+  }
+  @keyframes pulseMic {
+    0% { opacity: 0.8; }
+    100% { opacity: 1; box-shadow: 0 0 20px rgba(231, 76, 60, 0.8); }
+  }
+    /* 盲盒抖动动画 */
+  @keyframes boxShake {
+    0%, 100% { transform: rotate(0deg) scale(1); }
+    25% { transform: rotate(-15deg) scale(1.1); }
+    75% { transform: rotate(15deg) scale(1.1); }
+  }
+  .box-shaking {
+    animation: boxShake 0.3s infinite;
   }
 </style>
 </head>
@@ -711,7 +972,20 @@
       </div>
     </div>
   </div>
-
+        <!-- 猪猪盲盒弹窗 -->
+  <div id="box-modal" class="dev-modal">
+    <div class="dev-box" style="background: #fff0f5; border: 2px dashed #ffb6c1;">
+      <h2 style="color: #d15b5b; margin-bottom: 15px;">🎁 猪猪盲盒</h2>
+      <div id="box-display" style="font-size: 60px; margin: 20px 0;">🎁</div>
+      <p id="box-result" style="color: #d15b5b; font-weight: bold; min-height: 40px; margin-bottom: 15px;">30 猪猪币抽一次，有惊喜哦！</p>
+      
+      <div class="dev-btns">
+        <button id="btn-draw-box" class="dev-btn">花 30 币抽盲盒</button>
+        <button id="btn-close-box" class="dev-btn secondary">下次再抽</button>
+      </div>
+    </div>
+  </div>
+  </div>
   <!-- ====== 日常主页 ====== -->
   <div class="felt-board" id="felt-board">
     <div class="photo" style="background-image: url('photo1.jpg')"></div>
@@ -803,8 +1077,147 @@
     </div>
   </div>
 
+  <!-- 右上角工具栏：签到、大厅、盲盒 -->
+  <div class="quick-tools" id="quick-tools">
+    <div id="coin-display" class="coin-display" role="button" tabindex="0" title="点击打卡签到" aria-label="打卡签到，查看猪猪币">
+      <span class="coin-icon">💰</span>
+      <span id="coin-count">0</span>
+    </div>
+    <div id="game-hall-icon" class="game-hall-icon" role="button" tabindex="0" title="游戏大厅" aria-label="打开游戏大厅">🎮</div>
+    <!-- 新增：盲盒入口 -->
+    <div id="box-icon" class="game-hall-icon" role="button" tabindex="0" title="猪猪盲盒" aria-label="打开猪猪盲盒" style="background: #fff0f5; border-color: #ffc0cb;">🎁</div>
+  </div>
+
+  <!-- 签到日历弹窗 -->
+  <div id="signin-modal" class="signin-modal">
+    <div class="signin-box">
+      <h2>打卡日历</h2>
+      <div class="calendar-header">
+        <span>日</span><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span>
+      </div>
+      <div class="calendar-grid" id="calendar-grid"></div>
+      <button id="btn-signin" class="signin-btn">今日签到</button>
+      <button id="btn-close-signin" class="close-btn">关闭</button>
+    </div>
+  </div>
+
+  <!-- 游戏大厅界面 -->
+  <div id="game-hall-modal" class="game-hall-modal">
+    <div class="game-hall-box">
+      <h2>游戏大厅</h2>
+      <div class="game-list">
+        <div class="game-item active" id="btn-start-race">
+          <div class="game-icon">🏃</div>
+          <div class="game-info">
+            <h3>猪猪赛跑</h3>
+            <p>入场费：20 猪猪币</p>
+          </div>
+        </div>
+        <div class="game-item">
+          <div class="game-icon">🏓</div>
+          <div class="game-info"><h3>乒乓球</h3><p>敬请期待...</p></div>
+        </div>
+        <div class="game-item">
+          <div class="game-icon">🏀</div>
+          <div class="game-info"><h3>投篮</h3><p>敬请期待...</p></div>
+        </div>
+      </div>
+      <button id="btn-close-hall" class="close-btn">关闭大厅</button>
+    </div>
+  </div>
+
+  <!-- 赛跑游戏画面（镜头跟随版） -->
+  <div id="race-game-screen" class="stage" style="display: none;">
+    <!-- 天空装饰 -->
+    <div aria-hidden="true">
+      <div class="cloud c1"></div>
+      <div class="cloud c2"></div>
+      <div class="cloud c3"></div>
+      <div class="cloud c4"></div>
+    </div>
+
+    <!-- 顶部计时器 -->
+    <div class="hud">
+      <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <circle cx="12" cy="12" r="9" stroke="#FFFFFF" stroke-width="1.8"/>
+        <path d="M12 7.2v5.2l3.2 1.9" stroke="#FFFFFF" stroke-width="1.8" stroke-linecap="round"/>
+      </svg>
+      <span class="time" id="race-timer">00:60</span>
+      <span class="tick" aria-hidden="true"></span>
+    </div>
+
+    <!-- 四条跑道 -->
+    <div class="track">
+      <!-- 给每个人加上 id 方便 JS 控制 -->
+      <div class="lane">
+        <div class="runner r1" id="runner-idol">
+          <span class="emoji" aria-hidden="true">🏃‍♂️</span>
+          <span class="tag">猪猪欧巴</span>
+        </div>
+      </div>
+      <div class="lane">
+        <div class="runner r2" id="runner-zhonghua">
+          <span class="emoji" aria-hidden="true">👨‍🦲</span>
+          <span class="tag">中华</span>
+        </div>
+      </div>
+      <div class="lane">
+        <div class="runner r3" id="runner-jianguo">
+          <span class="emoji" aria-hidden="true">👨‍💼</span>
+          <span class="tag">建国</span>
+        </div>
+      </div>
+      <div class="lane">
+        <div class="runner r4" id="runner-liqun">
+          <span class="emoji" aria-hidden="true">👨‍🎤</span>
+          <span class="tag">利群</span>
+        </div>
+      </div>
+      <div class="start-line" aria-hidden="true"></div>
+    </div>
+
+    <!-- 右侧技能栏 -->
+    <button id="toggle-skills" class="toggle-skills">▶</button>
+    <aside class="skills" id="skills-panel" aria-label="技能栏">
+      <p class="bar-title">技能</p>
+      <button id="mic-btn" class="mic-btn" type="button">🎤 点我喊</button>
+      <button class="skill-btn" type="button" data-skill="dash">闪身步</button>
+      <button class="skill-btn" type="button" data-skill="steal">偷走你的大裤衩</button>
+      <button class="skill-btn" type="button" data-skill="guard">我的欧巴我来守护</button>
+      <button class="skill-btn" type="button" data-skill="slow">跑起来才不烧心</button>
+      <button class="skill-btn" type="button" data-skill="skate">滑冰鞋老子穿起耍</button>
+    </aside>
+
+    <!-- 左下角放弃比赛 -->
+    <button class="quit" type="button" id="btn-exit-race">
+      <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <path d="M8 6h10a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H8L3 12l5-6Z" stroke="#FFE9C2" stroke-width="1.8" stroke-linejoin="round"/>
+        <path d="M9.5 9.5l4 4m0-4l-4 4" stroke="#FFE9C2" stroke-width="1.6" stroke-linecap="round"/>
+      </svg>
+      放弃比赛
+    </button>
+
   <script>
     // ==================== 基础元素 ====================
+    // ==================== 通用小工具 ====================
+    const safePlay = (audio) => {
+      try {
+        const p = audio && audio.play();
+        if (p && typeof p.catch === 'function') p.catch(() => {});
+      } catch (e) {}
+    };
+    const readStore = (key) => { try { return localStorage.getItem(key); } catch (e) { return null; } };
+    const writeStore = (key, val) => { try { localStorage.setItem(key, val); } catch (e) {} };
+    const escapeHTML = (s) => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+    let toastTimer = null;
+    function showToast(text, duration = 2200) {
+      let el = document.getElementById('toast');
+      if (!el) { el = document.createElement('div'); el.id = 'toast'; el.className = 'toast'; document.body.appendChild(el); }
+      el.textContent = text;
+      el.classList.add('show');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => el.classList.remove('show'), duration);
+    }
     const wrapper = document.getElementById('idol-wrapper');
     const idol = document.getElementById('idol');
     const swing = document.getElementById('swing');
@@ -924,8 +1337,10 @@
         wrapper.style.transform = 'translateX(-50%)'; wrapper.dataset.onSwing = 'false';
       }
     }
-    wrapper.addEventListener('mousedown', onStart); document.addEventListener('mousemove', onMove); document.addEventListener('mouseup', onEnd);
-    wrapper.addEventListener('touchstart', onStart, { passive: false }); document.addEventListener('touchmove', onMove, { passive: false }); document.addEventListener('touchend', onEnd);
+    wrapper.addEventListener('pointerdown', onStart);
+    document.addEventListener('pointermove', onMove);
+    document.addEventListener('pointerup', onEnd);
+    document.addEventListener('pointercancel', onEnd);
 
     // ==================== 秋千模式逻辑 ====================
     const swingMode = document.getElementById('swing-mode');
@@ -936,12 +1351,18 @@
     let swingSpeed = 0, swingPhase = 0, swingActive = false, rafId = null, decayTimer = null, cryCount = 0, swingNoteDropped = false;
 
     function enterSwingMode() {
-      swingActive = true; swingMode.classList.add('active');
+      if (swingActive) return;
+      swingActive = true;
+      clearInterval(decayTimer);
+      cancelAnimationFrame(rafId);
+      swingMode.classList.add('active');
       swingSpeed = 0; swingPhase = 0; cryCount = 0; swingEmoji.classList.remove('show');
       decayTimer = setInterval(() => { if (swingSpeed > 0) { swingSpeed *= 0.96; if (swingSpeed < 0.15) swingSpeed = 0; } }, 150);
       devIcon.style.display = 'none';
       swingLoop();
     }
+    // 直接点秋千也能进入放大模式（原来只能把爱豆拖过去）
+    swing.addEventListener('click', enterSwingMode);
     function exitSwingMode() {
       swingActive = false; swingMode.classList.remove('active'); swingSpeed = 0; swingPhase = 0; cryCount = 0;
       pendulum.style.transform = 'rotate(0deg)'; swingEmoji.classList.remove('show');
@@ -1010,7 +1431,7 @@
     });
     btnPeek.addEventListener('click', function () {
       swingNoteBtns.style.display = 'none'; swingNoteText.textContent = '正在播放：猪猪的悄悄话……';
-      swingNoteAudio.currentTime = 0; swingNoteAudio.play();
+      swingNoteAudio.currentTime = 0; safePlay(swingNoteAudio);
       clearInterval(subtitleTimer);
       subtitleTimer = setInterval(() => {
         const t = swingNoteAudio.currentTime;
@@ -1055,8 +1476,10 @@
         createBubbleBurst();
       } else { bubbleMachine.style.transform = 'translate(0, 0)'; }
     }
-    bubbleMachine.addEventListener('mousedown', onMachineStart); document.addEventListener('mousemove', onMachineMove); document.addEventListener('mouseup', onMachineEnd);
-    bubbleMachine.addEventListener('touchstart', onMachineStart, { passive: false }); document.addEventListener('touchmove', onMachineMove, { passive: false }); document.addEventListener('touchend', onMachineEnd);
+    bubbleMachine.addEventListener('pointerdown', onMachineStart);
+    document.addEventListener('pointermove', onMachineMove);
+    document.addEventListener('pointerup', onMachineEnd);
+    document.addEventListener('pointercancel', onMachineEnd);
 
     let activeBubblePositions = [];
     function createBubbleBurst() {
@@ -1110,8 +1533,15 @@
 
     // ==================== 小电视互动 ====================
     tv.addEventListener('click', function () {
-      if (tvAudio.paused) { tvAudio.play(); tv.classList.add('playing'); tvCaption.classList.add('show'); }
-      else { tvAudio.pause(); tv.classList.remove('playing'); tvCaption.classList.remove('show'); }
+      if (tvAudio.paused) {
+        safePlay(tvAudio);
+        tv.classList.add('playing');
+        tvCaption.classList.add('show');
+      } else {
+        tvAudio.pause();
+        tv.classList.remove('playing');
+        tvCaption.classList.remove('show');
+      }
     });
     tvAudio.addEventListener('ended', function () { tv.classList.remove('playing'); tvCaption.classList.remove('show'); });
 
@@ -1141,8 +1571,10 @@
         setTimeout(() => { mug.style.transform = 'translate(0, 0)'; }, 2500);
       } else { mug.style.transform = 'translate(0, 0)'; }
     }
-    mug.addEventListener('mousedown', onMugStart); document.addEventListener('mousemove', onMugMove); document.addEventListener('mouseup', onMugEnd);
-    mug.addEventListener('touchstart', onMugStart, { passive: false }); document.addEventListener('touchmove', onMugMove, { passive: false }); document.addEventListener('touchend', onMugEnd);
+    mug.addEventListener('pointerdown', onMugStart);
+    document.addEventListener('pointermove', onMugMove);
+    document.addEventListener('pointerup', onMugEnd);
+    document.addEventListener('pointercancel', onMugEnd);
 
     function triggerDrink() {
       const rect = idol.getBoundingClientRect();
@@ -1211,7 +1643,7 @@
       nightText.textContent = '……';
       nightBtns.innerHTML = '';
       nightAudio.currentTime = 0;
-      nightAudio.play().catch(() => {});
+      safePlay(nightAudio);
 
       // 字幕显示
       clearInterval(nightSubTimer);
@@ -1316,9 +1748,9 @@
 
     function startBirthdayFlow() {
       birthdayOverlay.classList.add('active');
-      bgMusic.currentTime = 0; bgMusic.volume = 0.3; bgMusic.loop = true; bgMusic.play();
+      bgMusic.currentTime = 0; bgMusic.volume = 0.3; bgMusic.loop = true; safePlay(bgMusic);
       showStage('stage-my-blessing');
-      myBlessingAudio.currentTime = 0; myBlessingAudio.play();
+      myBlessingAudio.currentTime = 0; safePlay(myBlessingAudio);
       playSubtitles(myBlessingAudio, document.getElementById('my-blessing-subtitle'), mySubtitles);
       myBlessingAudio.addEventListener('ended', () => { showStage('stage-cake'); }, { once: true });
     }
@@ -1344,7 +1776,7 @@
 
     document.getElementById('open-letter-btn').addEventListener('click', () => {
       showStage('stage-idol-blessing');
-      idolBlessingAudio.currentTime = 0; idolBlessingAudio.play();
+      idolBlessingAudio.currentTime = 0; safePlay(idolBlessingAudio);
       playSubtitles(idolBlessingAudio, document.getElementById('idol-blessing-subtitle'), idolSubtitles);
       idolBlessingAudio.addEventListener('ended', () => { showStage('stage-wish'); }, { once: true });
     });
@@ -1352,8 +1784,13 @@
     document.getElementById('release-wish-btn').addEventListener('click', () => {
       showStage('stage-wish-flying');
       const wishPaper = document.getElementById('wish-paper'); const wishMessage = document.getElementById('wish-message');
+      const wishText = (document.getElementById('wish-input').value || '').trim();
+      if (wishText) writeStore('piggyWish', wishText);
+      const wishLine = wishText
+        ? `「${escapeHTML(wishText)}」已经飞向星空啦 🌌<br>一定会实现的。`
+        : '愿望已经飞向星空啦 🌌<br>一定会实现的。';
       setTimeout(() => { wishPaper.classList.add('fly'); }, 50);
-      setTimeout(() => { wishMessage.innerHTML = '愿望已经飞向星空啦 🌌<br>一定会实现的。'; wishMessage.style.opacity = '1'; wishMessage.style.transform = 'scale(1) translateY(0)'; }, 1500);
+      setTimeout(() => { wishMessage.innerHTML = wishLine; wishMessage.style.opacity = '1'; wishMessage.style.transform = 'scale(1) translateY(0)'; }, 1500);
       setTimeout(() => { wishMessage.style.transition = 'opacity 1s ease, transform 1s ease'; wishMessage.style.opacity = '0'; wishMessage.style.transform = 'scale(1.4) translateY(-20px)'; }, 3500);
       setTimeout(() => {
         wishMessage.innerHTML = '生日快乐，宝贝 🎂'; wishMessage.style.transition = 'none'; wishMessage.style.opacity = '0'; wishMessage.style.transform = 'scale(0.8) translateY(20px)';
@@ -1361,7 +1798,7 @@
       }, 4600);
       setTimeout(() => {
         let vol = 0.3;
-        const fadeOut = setInterval(() => { vol -= 0.02; if (vol <= 0) { clearInterval(fadeOut); bgMusic.pause(); bgMusic.volume = 1; } else { bgMusic.volume = vol; } }, 100);
+        const fadeOut = setInterval(() => { vol -= 0.02; if (vol <= 0) { clearInterval(fadeOut); bgMusic.pause(); bgMusic.volume = 1; bgMusic.loop = false; bgMusic.currentTime = 0; tv.classList.remove('playing'); tvCaption.classList.remove('show'); } else { bgMusic.volume = vol; } }, 100);
         birthdayOverlay.style.opacity = '0';
         setTimeout(() => { birthdayOverlay.style.display = 'none'; birthdayOverlay.style.opacity = '1'; }, 2000);
       }, 8000);
@@ -1376,7 +1813,533 @@
         startBtn.addEventListener('click', () => { startBtn.remove(); startBirthdayFlow(); });
       });
     }
-  </script>
+    // ==================== 猪猪币与签到系统 ====================
+    const defaultUserData = { coins: 100, signedDates: [], continuousDays: 0 };
+    let userData = { ...defaultUserData };
+    try {
+      const raw = readStore('piggyBank');
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (parsed && typeof parsed === 'object') userData = { ...defaultUserData, ...parsed };
+      }
+    } catch (e) {
+      userData = { ...defaultUserData };
+    }
+    if (!Array.isArray(userData.signedDates)) userData.signedDates = [];
+    if (typeof userData.coins !== 'number' || !isFinite(userData.coins) || userData.coins < 0) userData.coins = 100;
+    if (typeof userData.continuousDays !== 'number' || !isFinite(userData.continuousDays) || userData.continuousDays < 0) userData.continuousDays = 0;
+    // 兼容旧版本不带前导零的日期（如 2026-11-7）
+    const normalizeDate = (s) => {
+      const m = /^(\d{4})-(\d{1,2})-(\d{1,2})$/.exec(String(s));
+      return m ? `${m[1]}-${m[2].padStart(2, '0')}-${m[3].padStart(2, '0')}` : String(s);
+    };
+    userData.signedDates = [...new Set(userData.signedDates.map(normalizeDate))];
 
+    const coinDisplay = document.getElementById('coin-display');
+    const coinCount = document.getElementById('coin-count');
+    const signinModal = document.getElementById('signin-modal');
+    const calendarGrid = document.getElementById('calendar-grid');
+    const btnSignin = document.getElementById('btn-signin');
+    const btnCloseSignin = document.getElementById('btn-close-signin');
+
+    function updateCoinDisplay() {
+      coinCount.textContent = userData.coins;
+      writeStore('piggyBank', JSON.stringify(userData));
+    }
+    updateCoinDisplay();
+
+    function getDateString(date) {
+      return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+    }
+    const todayStr = () => getDateString(new Date());
+    const isSignedToday = () => userData.signedDates.includes(todayStr());
+    const getExpectedReward = () => {
+      const y = new Date(); y.setDate(y.getDate() - 1);
+      const days = userData.signedDates.includes(getDateString(y)) ? userData.continuousDays + 1 : 1;
+      return Math.min(20 + (days - 1) * 5, 50);
+    };
+
+    function renderCalendar() {
+      calendarGrid.innerHTML = '';
+      const today = new Date();
+      const sunday = new Date(today);
+      sunday.setDate(today.getDate() - today.getDay());
+      for (let i = 0; i < 7; i++) {
+        const d = new Date(sunday);
+        d.setDate(sunday.getDate() + i);
+        const dStr = getDateString(d);
+        const dayDiv = document.createElement('div');
+        dayDiv.className = 'cal-day';
+        dayDiv.textContent = d.getDate();
+        if (dStr === todayStr()) dayDiv.classList.add('is-today');
+        if (userData.signedDates.includes(dStr)) dayDiv.classList.add('signed');
+        calendarGrid.appendChild(dayDiv);
+      }
+    }
+
+    function openSigninModal() {
+      renderCalendar();
+      if (isSignedToday()) {
+        btnSignin.textContent = '今天已签到啦';
+        btnSignin.disabled = true;
+      } else {
+        btnSignin.textContent = `今日签到 (+${getExpectedReward()} 猪猪币)`;
+        btnSignin.disabled = false;
+      }
+      signinModal.classList.add('active');
+    }
+    coinDisplay.addEventListener('click', openSigninModal);
+    coinDisplay.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openSigninModal(); }
+    });
+    btnCloseSignin.addEventListener('click', () => signinModal.classList.remove('active'));
+
+    btnSignin.addEventListener('click', () => {
+      if (isSignedToday()) return;
+      const y = new Date(); y.setDate(y.getDate() - 1);
+      const days = userData.signedDates.includes(getDateString(y)) ? userData.continuousDays + 1 : 1;
+      const reward = Math.min(20 + (days - 1) * 5, 50);
+      userData.continuousDays = days;
+      userData.coins += reward;
+      userData.signedDates.push(todayStr());
+      updateCoinDisplay();
+      renderCalendar();
+      btnSignin.textContent = `签到成功！+${reward}`;
+      btnSignin.disabled = true;
+      showToast(`签到成功，猪猪币 +${reward} 🐷`);
+    });
+
+    // ==================== 游戏大厅与赛跑 ====================
+        // ==================== 游戏大厅与赛跑 ====================
+    const gameHallIcon = document.getElementById('game-hall-icon');
+    const gameHallModal = document.getElementById('game-hall-modal');
+    const btnCloseHall = document.getElementById('btn-close-hall');
+    const btnStartRace = document.getElementById('btn-start-race');
+    const raceGameScreen = document.getElementById('race-game-screen');
+    const btnExitRace = document.getElementById('btn-exit-race');
+    const raceTimerText = document.getElementById('race-timer');
+    const elIdol = document.getElementById('runner-idol');
+    const elZhonghua = document.getElementById('runner-zhonghua');
+    const elJianguo = document.getElementById('runner-jianguo');
+    const elLiqun = document.getElementById('runner-liqun');
+
+    function openGameHall() { gameHallModal.classList.add('active'); }
+    gameHallIcon.addEventListener('click', openGameHall);
+    gameHallIcon.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openGameHall(); }
+    });
+    btnCloseHall.addEventListener('click', () => gameHallModal.classList.remove('active'));
+
+    let raceInterval = null, raceResultTimer = null, raceEnded = false;
+    let timeRemaining = 60;
+    let distIdol = 5, distZhonghua = 5, distJianguo = 5, distLiqun = 5;
+    const baseSpeedIdol = 1.15, baseSpeedZhonghua = 1.35, baseSpeedJianguo = 1.3, baseSpeedLiqun = 1.4;
+    let idolBoost = 1, rivalSlow = 1, boostTimer = null;
+    const skillButtons = Array.from(document.querySelectorAll('.skill-btn'));
+    
+    // 技能冷却和事件状态
+    let skillCooldown = false;
+    let eventHappening = false;
+
+    // ==================== 赛跑核心逻辑 ====================
+    
+    // 1. 重置技能状态
+    function resetSkills() {
+      clearTimeout(boostTimer); boostTimer = null;
+      idolBoost = 1; rivalSlow = 1;
+      skillCooldown = false;
+      eventHappening = false;
+      skillButtons.forEach(b => { 
+        b.disabled = false; 
+        b.classList.remove('used'); 
+        b.textContent = b.dataset.originalText || b.textContent; 
+      });
+    }
+
+    // 2. 技能增益定时器
+    function boostFor(ms) {
+      clearTimeout(boostTimer);
+      boostTimer = setTimeout(() => { idolBoost = 1; rivalSlow = 1; }, ms);
+    }
+
+    // 3. 触发技能
+    function triggerSkill(key, btn, isVoice = false) {
+      if (raceGameScreen.style.display === 'none' || raceEnded || skillCooldown) return;
+      
+      skillCooldown = true;
+      skillButtons.forEach(b => b.disabled = true); 
+      
+      // 按钮倒计时 UI
+      if (btn) {
+        if (!btn.dataset.originalText) btn.dataset.originalText = btn.textContent;
+        let countdown = 5;
+        btn.textContent = `冷却 ${countdown}s`;
+        let cdInt = setInterval(() => {
+          countdown--;
+          if (countdown > 0) btn.textContent = `冷却 ${countdown}s`;
+          else {
+            clearInterval(cdInt);
+            btn.textContent = btn.dataset.originalText;
+          }
+        }, 1000);
+      }
+
+      // 5秒后解除冷却
+      setTimeout(() => {
+        skillCooldown = false;
+        skillButtons.forEach(b => { b.disabled = false; b.classList.remove('used'); });
+      }, 5000);
+
+      // 技能具体效果
+      switch (key) {
+        case 'dash': // 闪身步
+          distIdol = Math.min(distIdol + 10, 95);
+          showToast(isVoice ? '🎤 闪身步！欧巴往前窜了一大截 ✨' : '闪身步！欧巴往前窜了一大截 ✨'); 
+          break;
+        case 'steal': // 偷走大裤衩
+          distZhonghua = Math.max(5, distZhonghua - 8);
+          distJianguo = Math.max(5, distJianguo - 8);
+          distLiqun = Math.max(5, distLiqun - 8);
+          showToast('不要啊 😆'); 
+          break;
+        case 'guard': // 守护
+          idolBoost = 1.8; boostFor(3000); 
+          showToast('守护成功！3 秒内欧巴加速 🛡️'); 
+          break;
+        case 'slow': // 才不烧心（陷阱）
+          idolBoost = 0.5; boostFor(2000); 
+          showToast('欧巴：规矩要立住！但是跑的好烧心 🐢'); 
+          break;
+        case 'skate': // 滑冰鞋
+          idolBoost = 2.2; boostFor(3000); 
+          showToast('滑冰鞋穿上！3 秒内飞速前进 ⛸️'); 
+          break;
+      }
+      updatePositions();
+    }
+
+    // 给按钮绑定事件
+    skillButtons.forEach(btn => {
+      btn.dataset.originalText = btn.textContent;
+      btn.addEventListener('click', () => triggerSkill(btn.dataset.skill, btn, false));
+    });
+
+    // ==================== 麦克风语音控制 ====================
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    let recognition = null;
+    let isListening = false;
+    const micBtn = document.getElementById('mic-btn');
+
+    if (SpeechRecognition && micBtn) {
+      recognition = new SpeechRecognition();
+      recognition.lang = 'zh-CN';
+      recognition.continuous = false;
+      recognition.interimResults = false;
+
+      recognition.onstart = () => {
+        isListening = true;
+        micBtn.classList.add('listening');
+        micBtn.textContent = '🎙️ 听中...';
+      };
+
+      recognition.onend = () => {
+        isListening = false;
+        micBtn.classList.remove('listening');
+        micBtn.textContent = '🎤 点我喊';
+      };
+
+      recognition.onresult = (event) => {
+        const transcript = event.results[0][0].transcript;
+        let matchedKey = null;
+        if (/闪身|大闪|闪现|身步/.test(transcript)) matchedKey = 'dash';
+        else if (/大裤衩|裤衩|偷走/.test(transcript)) matchedKey = 'steal';
+        else if (/守护|我来|保护/.test(transcript)) matchedKey = 'guard';
+        else if (/烧心|规矩|跑完/.test(transcript)) matchedKey = 'slow';
+        else if (/滑冰|溜冰|穿起耍/.test(transcript)) matchedKey = 'skate';
+
+        if (matchedKey) {
+          const btn = skillButtons.find(b => b.dataset.skill === matchedKey);
+          triggerSkill(matchedKey, btn, true);
+        } else {
+          showToast(`🎤 听到了：“${transcript}”，但没对上技能`);
+        }
+      };
+
+      recognition.onerror = (event) => {
+        if (event.error === 'not-allowed') showToast('❌ 麦克风权限被拒绝，请用按钮释放技能');
+      };
+
+      micBtn.addEventListener('click', () => {
+        if (isListening) {
+          recognition.stop();
+        } else {
+          if (skillCooldown) { showToast('技能冷却中，稍等！'); return; }
+          try { recognition.start(); } catch(e) {}
+        }
+      });
+    } else if (micBtn) {
+      micBtn.style.display = 'none'; // 不支持则隐藏
+    }
+
+    // ==================== 随机事件 ====================
+    function triggerRandomEvent() {
+      if (eventHappening || raceEnded) return;
+      eventHappening = true;
+
+      const rand = Math.random();
+      if (rand < 0.5) {
+        // 捡钱事件
+        showToast('欧巴在路上看到了什么！蹲下不跑了！', 2000);
+        distIdol = Math.max(5, distIdol - 5);
+        updatePositions();
+
+        setTimeout(() => {
+          if (Math.random() < 0.8) {
+            showToast('猪猪捡起来一看：是张练功券... 😭', 3000);
+          } else {
+            userData.coins += 50;
+            updateCoinDisplay();
+            showToast('天呐！捡到 50 猪猪币！！ 🤑', 3000);
+          }
+          // 确保反超
+          distZhonghua = distIdol + 5;
+          distJianguo = distIdol + 8;
+          distLiqun = distIdol + 3;
+          updatePositions();
+          eventHappening = false;
+        }, 3500);
+        
+      } else {
+        // 龟兔赛跑（领先时摆烂）
+        if (distIdol > distZhonghua && distIdol > distJianguo && distIdol > distLiqun) {
+          showToast('猪猪领先太多了，开始摆烂！等你们超车 😎', 3000);
+          const originalSpeed = idolBoost;
+          idolBoost = 0;
+          
+          setTimeout(() => {
+            idolBoost = originalSpeed;
+            showToast('对手超过去了！猪猪突然开始狂奔！ 🏃‍♂️💨', 2000);
+            idolBoost = 1.5;
+            boostFor(2000);
+            eventHappening = false;
+          }, 3000);
+        } else {
+          eventHappening = false;
+        }
+      }
+    }
+
+    // ==================== 比赛流程控制 ====================
+    
+    // 借钱与入场
+    btnStartRace.addEventListener('click', () => {
+      if (userData.coins < 20) {
+        const today = new Date().toDateString();
+        let borrowData = JSON.parse(localStorage.getItem('piggyBorrow')) || { date: today, count: 0 };
+        if (borrowData.date !== today) borrowData = { date: today, count: 0 };
+
+        if (borrowData.count >= 2) {
+          alert('王雨婷爸爸说：你今天已经要了两次钱了！败家子，自己签到去！');
+          return;
+        }
+
+        const password = prompt('猪猪币不足啦！如果要求助，请输入暗号：');
+        if (password === '王雨婷爸爸 我没钱救救我' || password === '王雨婷爸爸 我没钱了 救我') {
+          borrowData.count++;
+          localStorage.setItem('piggyBorrow', JSON.stringify(borrowData));
+          userData.coins += 20;
+          updateCoinDisplay();
+          alert(`王雨婷爸爸打赏了 20 猪猪币！今天还能借 ${2 - borrowData.count} 次。`);
+        } else if (password !== null) {
+          alert('暗号不对，王雨婷爸爸不认识你！');
+          return;
+        } else {
+          return;
+        }
+      }
+      
+      if (userData.coins < 20) return;
+
+      userData.coins -= 20;
+      updateCoinDisplay();
+      gameHallModal.classList.remove('active');
+      startRace();
+    });
+
+    function startRace() {
+      distIdol = 5; distZhonghua = 5; distJianguo = 5; distLiqun = 5;
+      timeRemaining = 60;
+      raceEnded = false;
+      raceTimerText.textContent = '00:60';
+      resetSkills();
+      updatePositions();
+      raceGameScreen.style.display = 'block';
+      coinDisplay.style.display = 'none';
+      gameHallIcon.style.display = 'none';
+      devIcon.style.display = 'none';
+
+      // 确保麦克风状态恢复
+      if (isListening) recognition.stop();
+
+      clearInterval(raceInterval);
+      clearTimeout(raceResultTimer);
+      raceInterval = setInterval(() => {
+        timeRemaining -= 0.1;
+        if (timeRemaining < 0) timeRemaining = 0;
+        raceTimerText.textContent = `00:${Math.ceil(timeRemaining).toString().padStart(2, '0')}`;
+
+        let spdIdol = baseSpeedIdol * (0.8 + Math.random() * 0.4) / 10 * idolBoost;
+        let spdZhonghua = baseSpeedZhonghua * (0.8 + Math.random() * 0.4) / 10 * rivalSlow;
+        let spdJianguo = baseSpeedJianguo * (0.8 + Math.random() * 0.4) / 10 * rivalSlow;
+        let spdLiqun = baseSpeedLiqun * (0.8 + Math.random() * 0.4) / 10 * rivalSlow;
+
+        distIdol += spdIdol; distZhonghua += spdZhonghua; distJianguo += spdJianguo; distLiqun += spdLiqun;
+        updatePositions();
+
+        // 随机事件判定（概率极低）
+        if (Math.random() < 0.002) triggerRandomEvent();
+
+        if (timeRemaining <= 0 || distIdol >= 95) endRace();
+      }, 100);
+    }
+
+    function updatePositions() {
+      distIdol = Math.min(distIdol, 95);
+      distZhonghua = Math.min(distZhonghua, 95);
+      distJianguo = Math.min(distJianguo, 95);
+      distLiqun = Math.min(distLiqun, 95);
+      elIdol.style.left = distIdol + '%';
+      elZhonghua.style.left = distZhonghua + '%';
+      elJianguo.style.left = distJianguo + '%';
+      elLiqun.style.left = distLiqun + '%';
+    }
+
+    function endRace() {
+      if (raceEnded) return;
+      raceEnded = true;
+      clearInterval(raceInterval);
+      
+      let rank = 1;
+      if (distZhonghua > distIdol) rank++;
+      if (distJianguo > distIdol) rank++;
+      if (distLiqun > distIdol) rank++;
+      
+      let rewardText = '';
+      if (rank === 1) { userData.coins += 60; rewardText = '第一名！奖励 60 猪猪币！'; }
+      else if (rank === 2) { userData.coins += 40; rewardText = '第二名！奖励 40 猪猪币！'; }
+      else if (rank === 3) { rewardText = '第三名，没有奖励！'; }
+      else { userData.coins -= 20; rewardText = '第四名...倒扣 20 猪猪币！'; }
+      
+      if (userData.coins < 0) userData.coins = 0;
+      updateCoinDisplay();
+      
+      raceResultTimer = setTimeout(() => {
+        showToast(`比赛结束！${rewardText} 当前余额 ${userData.coins}`, 3600);
+        exitRace();
+      }, 300);
+    }
+
+    function exitRace() {
+      clearInterval(raceInterval);
+      clearTimeout(raceResultTimer);
+      raceEnded = false;
+      raceGameScreen.style.display = 'none';
+      coinDisplay.style.display = '';
+      gameHallIcon.style.display = '';
+      devIcon.style.display = '';
+      resetSkills();
+      if (isListening) recognition.stop();
+    }
+    btnExitRace.addEventListener('click', exitRace);
+        // ==================== 技能栏折叠逻辑 ====================
+    const toggleSkillsBtn = document.getElementById('toggle-skills');
+    const skillsPanel = document.getElementById('skills-panel');
+    if (toggleSkillsBtn && skillsPanel) {
+      toggleSkillsBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const collapsed = skillsPanel.classList.toggle('collapsed');
+        toggleSkillsBtn.classList.toggle('collapsed', collapsed);
+        toggleSkillsBtn.textContent = collapsed ? '◀' : '▶';
+      });
+    }
+        // ==================== 猪猪盲盒系统 ====================
+       // ==================== 猪猪盲盒系统 ====================
+    const boxIcon = document.getElementById('box-icon');
+    const boxModal = document.getElementById('box-modal');
+    const btnDrawBox = document.getElementById('btn-draw-box');
+    const btnCloseBox = document.getElementById('btn-close-box');
+    const boxDisplay = document.getElementById('box-display');
+    const boxResult = document.getElementById('box-result');
+
+    if (boxIcon && boxModal) {
+      // 奖品池
+      const boxPrizes = [
+        { text: "抽到了欧巴的飞吻 💋", type: "text" },
+        { text: "抽到了过期的辣条 🥓", type: "text" },
+        { text: "王雨婷爸爸的欠条 📝", type: "text" },
+        { text: "“今天也很想你” 💌", type: "text" },
+        { text: "“你是我的特等奖” 💖", type: "text" },
+        { text: "恭喜获得 100 猪猪币！🤑", type: "coin", value: 100 }
+      ];
+
+      // 打开盲盒
+      boxIcon.addEventListener('click', () => {
+        boxModal.classList.add('active');
+        boxDisplay.textContent = '🎁';
+        boxDisplay.classList.remove('box-shaking');
+        boxResult.textContent = '30 猪猪币抽一次，有惊喜哦！';
+      });
+
+      // 关闭盲盒
+      btnCloseBox.addEventListener('click', () => {
+        boxModal.classList.remove('active');
+      });
+
+      // 抽奖逻辑
+      btnDrawBox.addEventListener('click', () => {
+        if (userData.coins < 30) {
+          showToast('猪猪币不足啦，快去玩赛跑去！');
+          return;
+        }
+
+        // 扣钱
+        userData.coins -= 30;
+        updateCoinDisplay();
+        
+        // 播放抖动动画
+        btnDrawBox.disabled = true;
+        boxResult.textContent = '正在开盒...';
+        boxDisplay.textContent = '🎁';
+        boxDisplay.classList.add('box-shaking');
+
+        setTimeout(() => {
+          boxDisplay.classList.remove('box-shaking');
+          
+          const rand = Math.random();
+          let prize;
+          if (rand < 0.6) {
+            // 60% 搞笑文字
+            const texts = boxPrizes.filter(p => p.type === "text");
+            prize = texts[Math.floor(Math.random() * texts.length)];
+          } else {
+            // 40% 大奖
+            prize = boxPrizes.find(p => p.type === "coin");
+          }
+
+          if (prize.type === "coin") {
+            userData.coins += prize.value;
+            updateCoinDisplay();
+            boxDisplay.textContent = '💰';
+            boxResult.innerHTML = `<span style="color:#e74c3c; font-size: 18px;">${prize.text}</span>`;
+          } else {
+            boxDisplay.textContent = '✨';
+            boxResult.innerHTML = `<span style="color:#d15b5b; font-size: 18px;">${prize.text}</span>`;
+          }
+          
+          btnDrawBox.disabled = false;
+        }, 1500);
+      });
+    }
+  </script>
 </body>
 </html>
