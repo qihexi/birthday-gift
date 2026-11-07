@@ -899,10 +899,18 @@
   .box-shaking {
     animation: boxShake 0.3s infinite;
   }
+    .food-btn {
+    padding: 12px; border: none; border-radius: 12px;
+    font-size: 16px; font-weight: bold; cursor: pointer;
+    font-family: inherit; transition: transform 0.1s;
+    box-shadow: 0 3px 0 rgba(0,0,0,0.1);
+  }
+  .food-btn:active {
+    transform: translateY(3px); box-shadow: none;
+  }
 </style>
 </head>
 <body>
-
   <!-- ====== 生日微电影 ====== -->
   <div id="birthday-overlay" class="birthday-overlay">
     <div id="stage-my-blessing" class="intro-stage active">
@@ -972,20 +980,7 @@
       </div>
     </div>
   </div>
-        <!-- 猪猪盲盒弹窗 -->
-  <div id="box-modal" class="dev-modal">
-    <div class="dev-box" style="background: #fff0f5; border: 2px dashed #ffb6c1;">
-      <h2 style="color: #d15b5b; margin-bottom: 15px;">🎁 猪猪盲盒</h2>
-      <div id="box-display" style="font-size: 60px; margin: 20px 0;">🎁</div>
-      <p id="box-result" style="color: #d15b5b; font-weight: bold; min-height: 40px; margin-bottom: 15px;">30 猪猪币抽一次，有惊喜哦！</p>
-      
-      <div class="dev-btns">
-        <button id="btn-draw-box" class="dev-btn">花 30 币抽盲盒</button>
-        <button id="btn-close-box" class="dev-btn secondary">下次再抽</button>
-      </div>
-    </div>
-  </div>
-  </div>
+
   <!-- ====== 日常主页 ====== -->
   <div class="felt-board" id="felt-board">
     <div class="photo" style="background-image: url('photo1.jpg')"></div>
@@ -1077,15 +1072,15 @@
     </div>
   </div>
 
-  <!-- 右上角工具栏：签到、大厅、盲盒 -->
+  <!-- 右上角工具栏 -->
   <div class="quick-tools" id="quick-tools">
     <div id="coin-display" class="coin-display" role="button" tabindex="0" title="点击打卡签到" aria-label="打卡签到，查看猪猪币">
       <span class="coin-icon">💰</span>
       <span id="coin-count">0</span>
     </div>
     <div id="game-hall-icon" class="game-hall-icon" role="button" tabindex="0" title="游戏大厅" aria-label="打开游戏大厅">🎮</div>
-    <!-- 新增：盲盒入口 -->
     <div id="box-icon" class="game-hall-icon" role="button" tabindex="0" title="猪猪盲盒" aria-label="打开猪猪盲盒" style="background: #fff0f5; border-color: #ffc0cb;">🎁</div>
+    <div id="shop-icon" class="game-hall-icon" role="button" tabindex="0" title="爱豆小卖部" aria-label="打开爱豆小卖部" style="background: #fff8e1; border-color: #ffe082;">🍖</div>
   </div>
 
   <!-- 签到日历弹窗 -->
@@ -1117,26 +1112,50 @@
           <div class="game-icon">🏓</div>
           <div class="game-info"><h3>乒乓球</h3><p>敬请期待...</p></div>
         </div>
-        <div class="game-item">
-          <div class="game-icon">🏀</div>
-          <div class="game-info"><h3>投篮</h3><p>敬请期待...</p></div>
+        <div class="game-item active" id="btn-start-catch">
+          <div class="game-icon">🪙</div>
+          <div class="game-info">
+            <h3>猪猪接金币</h3>
+            <p>入场费：50 猪猪币</p>
+          </div>
         </div>
       </div>
       <button id="btn-close-hall" class="close-btn">关闭大厅</button>
     </div>
   </div>
 
-  <!-- 赛跑游戏画面（镜头跟随版） -->
-  <div id="race-game-screen" class="stage" style="display: none;">
-    <!-- 天空装饰 -->
-    <div aria-hidden="true">
-      <div class="cloud c1"></div>
-      <div class="cloud c2"></div>
-      <div class="cloud c3"></div>
-      <div class="cloud c4"></div>
+  <!-- 猪猪盲盒弹窗 -->
+  <div id="box-modal" class="dev-modal">
+    <div class="dev-box" style="background: #fff0f5; border: 2px dashed #ffb6c1;">
+      <h2 style="color: #d15b5b; margin-bottom: 15px;">🎁 猪猪盲盒</h2>
+      <div id="box-display" style="font-size: 60px; margin: 20px 0;">🎁</div>
+      <p id="box-result" style="color: #d15b5b; font-weight: bold; min-height: 40px; margin-bottom: 15px;">30 猪猪币抽一次，有惊喜哦！</p>
+      <div class="dev-btns">
+        <button id="btn-draw-box" class="dev-btn">花 30 币抽盲盒</button>
+        <button id="btn-close-box" class="dev-btn secondary">下次再抽</button>
+      </div>
     </div>
+  </div>
 
-    <!-- 顶部计时器 -->
+  <!-- 爱豆小卖部弹窗 -->
+  <div id="shop-modal" class="dev-modal">
+    <div class="dev-box" style="background: #fffaf0; border: 2px dashed #ffd54f;">
+      <h2 style="color: #f57c00; margin-bottom: 15px;">🍖 爱豆小卖部</h2>
+      <p style="color: #888; font-size: 13px; margin-bottom: 15px;">你一共投喂了爱豆 <span id="feed-count" style="color: #f57c00; font-weight: bold; font-size: 18px;">0</span> 次</p>
+      <div style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px;">
+        <button class="food-btn" data-price="20" data-item="cake" style="background:#ffe4e1; color:#d15b5b;">🍰 草莓小蛋糕 (20币)</button>
+        <button class="food-btn" data-price="50" data-item="chicken" style="background:#ffe0b2; color:#e65100;">🍗 超大份炸鸡 (50币)</button>
+        <button class="food-btn" data-price="5" data-item="paper" style="background:#e0e0e0; color:#616161;">📜 过期练功券 (5币)</button>
+      </div>
+      <button id="btn-close-shop" class="dev-btn secondary" style="width: 100%;">关闭小卖部</button>
+    </div>
+  </div>
+
+  <!-- 赛跑游戏画面 -->
+  <div id="race-game-screen" class="stage" style="display: none;">
+    <div aria-hidden="true">
+      <div class="cloud c1"></div><div class="cloud c2"></div><div class="cloud c3"></div><div class="cloud c4"></div>
+    </div>
     <div class="hud">
       <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
         <circle cx="12" cy="12" r="9" stroke="#FFFFFF" stroke-width="1.8"/>
@@ -1145,38 +1164,13 @@
       <span class="time" id="race-timer">00:60</span>
       <span class="tick" aria-hidden="true"></span>
     </div>
-
-    <!-- 四条跑道 -->
     <div class="track">
-      <!-- 给每个人加上 id 方便 JS 控制 -->
-      <div class="lane">
-        <div class="runner r1" id="runner-idol">
-          <span class="emoji" aria-hidden="true">🏃‍♂️</span>
-          <span class="tag">猪猪欧巴</span>
-        </div>
-      </div>
-      <div class="lane">
-        <div class="runner r2" id="runner-zhonghua">
-          <span class="emoji" aria-hidden="true">👨‍🦲</span>
-          <span class="tag">中华</span>
-        </div>
-      </div>
-      <div class="lane">
-        <div class="runner r3" id="runner-jianguo">
-          <span class="emoji" aria-hidden="true">👨‍💼</span>
-          <span class="tag">建国</span>
-        </div>
-      </div>
-      <div class="lane">
-        <div class="runner r4" id="runner-liqun">
-          <span class="emoji" aria-hidden="true">👨‍🎤</span>
-          <span class="tag">利群</span>
-        </div>
-      </div>
+      <div class="lane"><div class="runner r1" id="runner-idol"><span class="emoji" aria-hidden="true">🏃‍♂️</span><span class="tag">猪猪欧巴</span></div></div>
+      <div class="lane"><div class="runner r2" id="runner-zhonghua"><span class="emoji" aria-hidden="true">👨‍🦲</span><span class="tag">中华</span></div></div>
+      <div class="lane"><div class="runner r3" id="runner-jianguo"><span class="emoji" aria-hidden="true">👨‍💼</span><span class="tag">建国</span></div></div>
+      <div class="lane"><div class="runner r4" id="runner-liqun"><span class="emoji" aria-hidden="true">👨‍🎤</span><span class="tag">利群</span></div></div>
       <div class="start-line" aria-hidden="true"></div>
     </div>
-
-    <!-- 右侧技能栏 -->
     <button id="toggle-skills" class="toggle-skills">▶</button>
     <aside class="skills" id="skills-panel" aria-label="技能栏">
       <p class="bar-title">技能</p>
@@ -1187,16 +1181,24 @@
       <button class="skill-btn" type="button" data-skill="slow">跑起来才不烧心</button>
       <button class="skill-btn" type="button" data-skill="skate">滑冰鞋老子穿起耍</button>
     </aside>
-
-    <!-- 左下角放弃比赛 -->
     <button class="quit" type="button" id="btn-exit-race">
-      <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-        <path d="M8 6h10a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H8L3 12l5-6Z" stroke="#FFE9C2" stroke-width="1.8" stroke-linejoin="round"/>
-        <path d="M9.5 9.5l4 4m0-4l-4 4" stroke="#FFE9C2" stroke-width="1.6" stroke-linecap="round"/>
-      </svg>
-      放弃比赛
+      ✕ 放弃比赛
     </button>
+  </div>
 
+  <!-- 猪猪接金币游戏画面 -->
+  <div id="catch-game-screen" class="stage" style="display: none; background: linear-gradient(to bottom, #a8edea 0%, #fed6e3 100%);">
+    <div class="hud" style="top: 20px; left: 20px; transform: none;">
+      <span class="time" style="color: #fff;">分数: <span id="catch-score">0</span></span>
+      <span class="tick" style="background: #e74c3c; margin-left: 15px;"></span>
+      <span class="time" style="color: #fff; margin-left: 5px;">生命: <span id="catch-life">3</span></span>
+      <span class="time" style="color: #fff; margin-left: 20px;">时间: <span id="catch-timer">30</span>s</span>
+    </div>
+    <div id="catch-area" style="position: absolute; inset: 0; overflow: hidden; touch-action: none;"></div>
+    <button class="quit" type="button" id="btn-exit-catch" style="top: 15px; right: 15px; left: auto; font-size: 11px; padding: 4px 10px; background: rgba(255,255,255,0.8); color: #555; border: 2px solid rgba(0,0,0,0.1); box-shadow: none;">
+      ✕ 放弃
+    </button>
+  </div>
   <script>
     // ==================== 基础元素 ====================
     // ==================== 通用小工具 ====================
@@ -2273,13 +2275,18 @@
 
     if (boxIcon && boxModal) {
       // 奖品池
+            // 奖品池（加入了新梗，调低了暴富概率）
       const boxPrizes = [
-        { text: "抽到了欧巴的飞吻 💋", type: "text" },
-        { text: "抽到了过期的辣条 🥓", type: "text" },
-        { text: "王雨婷爸爸的欠条 📝", type: "text" },
+        { text: "抽到了欧巴的飞吻 💋（并并没有什么用）", type: "text" },
+        { text: "抽到了过期的辣条 🥓，吃完拉肚子扣了 10 币", type: "minus", value: 10 },
+        { text: "王雨婷爸爸的欠条 📝（没啥用，纯纯的废纸）", type: "text" },
+        { text: "恭喜你抽到了这个 因为啥都没有", type: "text" },
+        { text: "森森森森 本来有奖的 被我偷走了呀", type: "text" },
         { text: "“今天也很想你” 💌", type: "text" },
         { text: "“你是我的特等奖” 💖", type: "text" },
-        { text: "恭喜获得 100 猪猪币！🤑", type: "coin", value: 100 }
+        { text: "抽到了中华掉的假发 👨‍🦲（？）", type: "text" },
+        { text: "恭喜获得 50 猪猪币！🤑（小赚一笔）", type: "coin", value: 50 },
+        { text: "抽到一双滑冰鞋，结果摔了一跤，倒扣 20 币！🤕", type: "minus", value: 20 }
       ];
 
       // 打开盲盒
@@ -2315,22 +2322,33 @@
         setTimeout(() => {
           boxDisplay.classList.remove('box-shaking');
           
-          const rand = Math.random();
+                    const rand = Math.random();
           let prize;
-          if (rand < 0.6) {
-            // 60% 搞笑文字
+          if (rand < 0.65) {
+            // 65% 概率：抽到普通搞笑文字
             const texts = boxPrizes.filter(p => p.type === "text");
             prize = texts[Math.floor(Math.random() * texts.length)];
+          } else if (rand < 0.85) {
+            // 20% 概率：抽到扣钱的倒霉事件
+            const minus = boxPrizes.filter(p => p.type === "minus");
+            prize = minus[Math.floor(Math.random() * minus.length)];
           } else {
-            // 40% 大奖
+            // 15% 概率：抽到 50 大奖
             prize = boxPrizes.find(p => p.type === "coin");
           }
 
-          if (prize.type === "coin") {
+                    if (prize.type === "coin") {
             userData.coins += prize.value;
             updateCoinDisplay();
             boxDisplay.textContent = '💰';
             boxResult.innerHTML = `<span style="color:#e74c3c; font-size: 18px;">${prize.text}</span>`;
+          } else if (prize.type === "minus") {
+            // 新增：扣钱逻辑
+            userData.coins -= prize.value;
+            if(userData.coins < 0) userData.coins = 0;
+            updateCoinDisplay();
+            boxDisplay.textContent = '💥';
+            boxResult.innerHTML = `<span style="color:#666; font-size: 18px;">${prize.text}</span>`;
           } else {
             boxDisplay.textContent = '✨';
             boxResult.innerHTML = `<span style="color:#d15b5b; font-size: 18px;">${prize.text}</span>`;
@@ -2339,6 +2357,263 @@
           btnDrawBox.disabled = false;
         }, 1500);
       });
+    }
+        // ==================== 爱豆小卖部（喂养系统） ====================
+    const shopIcon = document.getElementById('shop-icon');
+    const shopModal = document.getElementById('shop-modal');
+    const btnCloseShop = document.getElementById('btn-close-shop');
+    const feedCountText = document.getElementById('feed-count');
+    const foodBtns = document.querySelectorAll('.food-btn');
+
+    // 读取/保存投喂次数
+    let feedCount = parseInt(localStorage.getItem('idolFeedCount')) || 0;
+    feedCountText.textContent = feedCount;
+
+    shopIcon.addEventListener('click', () => {
+      shopModal.classList.add('active');
+    });
+    btnCloseShop.addEventListener('click', () => {
+      shopModal.classList.remove('active');
+    });
+
+    foodBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const price = parseInt(btn.dataset.price);
+        const item = btn.dataset.item;
+
+        if (userData.coins < price) {
+          showToast('猪猪币不够啦，买不起这个！');
+          return;
+        }
+
+        // 扣钱
+        userData.coins -= price;
+        updateCoinDisplay();
+        
+        // 增加投喂次数
+        feedCount++;
+        feedCountText.textContent = feedCount;
+        localStorage.setItem('idolFeedCount', feedCount);
+
+        // 关闭商店，让爱豆吃
+        shopModal.classList.remove('active');
+        
+        // 触发爱豆吃东西动画和台词
+        triggerIdolEat(item);
+      });
+    });
+
+    function triggerIdolEat(item) {
+      const rect = idol.getBoundingClientRect();
+      // 用之前冒爱心和文字的气泡
+      speech.style.left = (rect.left + rect.width / 2 - 60) + 'px';
+      speech.style.top = (rect.top - 20) + 'px';
+      speech.classList.remove('show'); 
+      void speech.offsetWidth; 
+      speech.classList.add('show');
+
+      let emojiText = '';
+      let speechText = '';
+
+      if (item === 'cake') {
+        emojiText = '❤️';
+        speechText = '好甜！谢谢宝宝~ 🍰';
+      } else if (item === 'chicken') {
+        emojiText = '💨';
+        speechText = '嗝~（小奶嗝） 太满足了，胖了算你的 🍗';
+      } else if (item === 'paper') {
+        emojiText = '😝';
+        speechText = '呸呸呸！你喂我吃纸？！';
+      }
+
+      speech.textContent = speechText;
+      
+      // 冒 emoji
+      heart.textContent = emojiText;
+      heart.style.left = (rect.left + rect.width / 2 + 10) + 'px';
+      heart.style.top = (rect.top + 5) + 'px';
+      heart.classList.remove('show'); 
+      void heart.offsetWidth; 
+      heart.classList.add('show');
+
+      clearTimeout(speech._timer);
+      speech._timer = setTimeout(() => speech.classList.remove('show'), 2500);
+      
+      // 恢复爱心原样
+      setTimeout(() => { heart.textContent = '❤️'; }, 2500);
+    }
+        // ==================== 猪猪接金币游戏 ====================
+    const btnStartCatch = document.getElementById('btn-start-catch');
+    const catchGameScreen = document.getElementById('catch-game-screen');
+    const btnExitCatch = document.getElementById('btn-exit-catch');
+    const catchArea = document.getElementById('catch-area');
+    const catchScoreText = document.getElementById('catch-score');
+    const catchLifeText = document.getElementById('catch-life');
+    const catchTimerText = document.getElementById('catch-timer');
+
+    let catchInterval = null;
+    let catchSpawnTimer = null;
+    let catchCollisionTimer = null; // 新增：碰撞检测定时器
+    let catchScore = 0;
+    let catchLife = 3;
+    let catchTime = 30;
+    let catchEnded = false;
+    let playerX = window.innerWidth / 2; // 初始位置居中
+
+    btnStartCatch.addEventListener('click', () => {
+      // 1. 扣除入场费
+      if (userData.coins < 50) {
+        showToast('猪猪币不足 50 啦，去签到或者找王雨婷爸爸吧！');
+        return;
+      }
+      userData.coins -= 50;
+      updateCoinDisplay();
+      
+      gameHallModal.classList.remove('active');
+      startCatchGame();
+    });
+
+    btnExitCatch.addEventListener('click', exitCatchGame);
+
+    function startCatchGame() {
+      catchScore = 0; catchLife = 3; catchTime = 30; catchEnded = false;
+      catchScoreText.textContent = catchScore;
+      catchLifeText.textContent = catchLife;
+      catchTimerText.textContent = catchTime;
+      
+      // 重置玩家位置和游戏区域
+      catchArea.innerHTML = `
+        <img id="catch-player" src="idol.png" style="position: absolute; bottom: 20px; width: 60px; transform: translateX(-50%); left: 50%; z-index: 10; pointer-events: none; transition: left 0.1s ease-out;">
+      `;
+      
+      // 隐藏主页图标
+      document.querySelector('.quick-tools').style.display = 'none';
+      devIcon.style.display = 'none';
+      
+      catchGameScreen.style.display = 'block';
+
+      // 开启计时器
+      clearInterval(catchInterval);
+      catchInterval = setInterval(() => {
+        catchTime--;
+        catchTimerText.textContent = catchTime;
+        if (catchTime <= 0) endCatchGame();
+      }, 1000);
+
+      // 开启掉落生成器（每 0.6 秒掉落一个）
+      clearInterval(catchSpawnTimer);
+      catchSpawnTimer = setInterval(() => {
+        if (catchEnded) return;
+        spawnDropItem();
+      }, 600);
+
+      // 开启碰撞检测（每 50 毫秒检测一次）
+      clearInterval(catchCollisionTimer);
+      catchCollisionTimer = setInterval(() => {
+        if (catchEnded || catchGameScreen.style.display === 'none') return;
+        checkCollision();
+      }, 50);
+    }
+
+    function spawnDropItem() {
+      // 45% 概率是便便，55% 是糖果
+      const isCoin = Math.random() > 0.45; 
+      const item = document.createElement('div');
+      item.textContent = isCoin ? '🍬' : '💩'; 
+      item.style.position = 'absolute';
+      item.style.top = '-50px';
+      item.style.left = (Math.random() * 80 + 10) + '%'; // 避免贴着屏幕边缘
+      item.style.fontSize = '35px'; // 大一点更可爱
+      item.style.transition = 'top 2s linear'; // 2秒落地
+      item.style.zIndex = '5';
+      item.style.filter = 'drop-shadow(0 4px 4px rgba(0,0,0,0.1))';
+      item.dataset.isCoin = isCoin;
+      
+      catchArea.appendChild(item);
+
+      // 强制重绘以确保过渡动画生效
+      void item.offsetWidth;
+      item.style.top = '100%';
+
+      // 落地后移除
+      setTimeout(() => {
+        if (item.parentNode) item.parentNode.removeChild(item);
+      }, 2000);
+    }
+
+    // 处理移动（鼠标/触摸）
+    function movePlayer(e) {
+      if (catchEnded) return;
+      const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+      const player = document.getElementById('catch-player');
+      if (!player) return;
+      
+      // 限制在屏幕内（左右留出一点边距）
+      playerX = Math.max(30, Math.min(clientX, window.innerWidth - 30));
+      player.style.left = playerX + 'px';
+    }
+
+    catchArea.addEventListener('mousemove', movePlayer);
+    catchArea.addEventListener('touchmove', movePlayer, { passive: false });
+
+    // 碰撞检测逻辑
+    function checkCollision() {
+      const player = document.getElementById('catch-player');
+      if (!player) return;
+      
+      const playerRect = player.getBoundingClientRect();
+      const items = catchArea.querySelectorAll('div'); // 获取所有掉落的元素
+      
+      items.forEach(item => {
+        const itemRect = item.getBoundingClientRect();
+        // 判断两个矩形是否相交
+        if (itemRect.bottom >= playerRect.top && itemRect.top <= playerRect.bottom && 
+            itemRect.right >= playerRect.left && itemRect.left <= playerRect.right) {
+          
+          if (item.dataset.isCoin === 'true') {
+            catchScore++;
+            catchScoreText.textContent = catchScore;
+          } else {
+            catchLife--;
+            catchLifeText.textContent = catchLife;
+            if (catchLife <= 0) endCatchGame();
+          }
+          
+          // 接到后销毁
+          if (item.parentNode) item.parentNode.removeChild(item);
+        }
+      });
+    }
+
+    function endCatchGame() {
+      if (catchEnded) return;
+      catchEnded = true;
+      clearInterval(catchInterval);
+      clearInterval(catchSpawnTimer);
+      clearInterval(catchCollisionTimer);
+
+      // 结算奖励：每 1 分给 5 个币，但最高只给 100 个
+      let reward = catchScore * 5;
+      if (reward > 100) reward = 100; 
+      
+      userData.coins += reward;
+      updateCoinDisplay();
+
+      setTimeout(() => {
+        showToast(`游戏结束！接到 ${catchScore} 个糖果，奖励 ${reward} 猪猪币！`, 3500);
+        exitCatchGame();
+      }, 300);
+    }
+
+    function exitCatchGame() {
+      catchEnded = true;
+      clearInterval(catchInterval);
+      clearInterval(catchSpawnTimer);
+      clearInterval(catchCollisionTimer);
+      
+      catchGameScreen.style.display = 'none';
+      document.querySelector('.quick-tools').style.display = 'flex';
+      devIcon.style.display = 'block';
     }
   </script>
 </body>
