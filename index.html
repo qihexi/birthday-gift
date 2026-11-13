@@ -908,6 +908,237 @@
   .food-btn:active {
     transform: translateY(3px); box-shadow: none;
   }
+    /* 小卖部/图鉴 专属样式 */
+  .food-item-btn {
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    padding: 10px 5px; border-radius: 12px; border: 2px solid transparent;
+    cursor: pointer; transition: transform 0.1s, box-shadow 0.2s;
+    box-shadow: 0 3px 0 rgba(0,0,0,0.1); font-family: inherit;
+  }
+  .food-item-btn:active { transform: translateY(3px); box-shadow: none; }
+  .food-item-btn .f-emoji { font-size: 24px; margin-bottom: 4px; }
+  .food-item-btn .f-name { font-size: 12px; font-weight: bold; color: #333; }
+  .food-item-btn .f-price { font-size: 11px; color: #888; margin-top: 2px; }
+  
+  .collection-item {
+    aspect-ratio: 1; display: flex; align-items: center; justify-content: center;
+    border-radius: 12px; font-size: 24px; border: 2px dashed #ddd; background: #f9f9f9;
+    transition: all 0.3s;
+  }
+  .collection-item.unlocked {
+    background: #fffde7; border: 2px solid #ffd54f; box-shadow: 0 2px 8px rgba(255,213,79,0.4);
+  }
+  .collection-item.locked { color: #ccc; filter: grayscale(1); opacity: 0.5; }
+  
+  /* ==================== 跳一跳游戏专属样式（隔离版） ==================== */
+  #jump-game-screen * { box-sizing: border-box; }
+  #jump-game-screen { 
+    --sky-1:#C9E9FF; --sky-2:#DCE3FF; --sky-3:#F0E1FA; --sky-4:#FFE6F0; --sky-5:#FFF3E6;
+    --mint-top:#D6F7E9; --mint-left:#B4EBD4; --mint-right:#8DDCBD;
+    --pink-top:#FFDFEC; --pink-left:#FFC7DC; --pink-right:#F2A6C5;
+    --ink:#6D4E68; --ink-soft:#9C8AA4; --accent:#FF8DB6;
+    --font-cute: "ZCOOL KuaiLe", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+    --font-num: "Fredoka", "ZCOOL KuaiLe", "PingFang SC", sans-serif;
+  }
+
+  .game { position:relative; width:100%; height:100%; overflow:hidden; isolation:isolate; font-family:var(--font-cute); color:var(--ink); }
+
+  /* 按住区域 */
+  .press { position:absolute; inset:0; z-index:30; width:100%; height:100%; padding:0; border:0; background:transparent; cursor:pointer; -webkit-tap-highlight-color:transparent; touch-action:manipulation; }
+
+  /* 天空背景 */
+  .sky { position:absolute; inset:0; z-index:0; overflow:hidden; background: linear-gradient(168deg, var(--sky-1) 0%, var(--sky-2) 30%, var(--sky-3) 54%, var(--sky-4) 78%, var(--sky-5) 100%); }
+  .sky::before { content:""; position:absolute; inset:0; background: radial-gradient(58% 42% at 82% 8%, rgba(255,255,255,.92), rgba(255,255,255,0) 72%), radial-gradient(46% 34% at 8% 88%, rgba(255,214,236,.55), rgba(255,214,236,0) 70%), radial-gradient(40% 28% at 46% 38%, rgba(255,255,255,.38), rgba(255,255,255,0) 74%); }
+
+  /* 云朵 */
+  .cloud { position:absolute; border-radius:99px; background:rgba(255,255,255,.78); box-shadow:0 18px 34px rgba(160,176,222,.14); filter:blur(1px); animation:bob 22s ease-in-out infinite; }
+  .cloud::before, .cloud::after { content:""; position:absolute; border-radius:50%; background:rgba(255,255,255,.86); }
+  .cloud::before { left:12%; bottom:34%; width:48%; height:118%; }
+  .cloud::after { right:14%; bottom:30%; width:38%; height:86%; }
+  .cloud--1 { width:clamp(130px,24vw,250px); height:clamp(42px,7vw,72px); top:12%; left:-4%; animation-duration:26s; }
+  .cloud--2 { width:clamp(90px,16vw,170px); height:clamp(30px,4.6vw,50px); top:30%; right:-2%; opacity:.72; animation-duration:31s; animation-delay:-9s; }
+  .cloud--3 { width:clamp(76px,13vw,138px); height:clamp(26px,4vw,42px); top:62%; left:6%; opacity:.5; animation-duration:34s; animation-delay:-16s; }
+  .cloud--4 { width:clamp(150px,26vw,280px); height:clamp(46px,7.4vw,78px); bottom:6%; right:-8%; opacity:.62; animation-duration:28s; animation-delay:-5s; }
+
+  /* 星星 */
+  .star { position:absolute; fill:#FFFFFF; filter:drop-shadow(0 0 6px rgba(255,182,214,.85)); animation:twinkle 4.6s ease-in-out infinite; opacity:.9; }
+  .star--1 { width:26px; height:26px; top:9%; left:14%; }
+  .star--2 { width:18px; height:18px; top:6%; left:52%; animation-delay:-1.4s; fill:#FFF4FA; }
+  .star--3 { width:34px; height:34px; top:19%; right:9%; animation-delay:-2.6s; fill:#FFD9EA; }
+  .star--4 { width:16px; height:16px; top:44%; right:22%; animation-delay:-.7s; }
+  .star--5 { width:22px; height:22px; top:33%; left:4%; animation-delay:-3.3s; fill:#FFE8F3; }
+
+  @keyframes bob { 0%,100%{ transform:translate3d(0,0,0); } 35%{ transform:translate3d(22px,-12px,0); } 70%{ transform:translate3d(-14px,7px,0); } }
+  @keyframes twinkle { 0%,100%{ opacity:.35; transform:scale(.82) rotate(0deg); } 45%{ opacity:1; transform:scale(1.08) rotate(12deg); } }
+
+  /* 场景 */
+  .scene { position:absolute; inset:0; z-index:2; }
+  .pair { --s: clamp(112px, 37vmin, 218px); --s-b: calc(var(--s) * .68); position:absolute; left:50%; top:52%; width:calc(var(--s) * 2.4159); height:calc(var(--s) * 2.3171); transform:translate(-50%,-50%); }
+
+  /* 方块几何 */
+  .block { position:absolute; width:calc(var(--s) * 1.4142); height:calc(var(--s) * .7071 + var(--d)); --d: calc(var(--s) * .66); filter:drop-shadow(0 22px 30px rgba(126,106,180,.16)); }
+  .block--front { left:0; top:calc(var(--s) * .95); }
+  .block--next { --s: var(--s-b); left:calc(var(--s) * 1.4542); top:0; }
+  .face { position:absolute; will-change:transform; }
+
+  /* 垫底芯 */
+  .face-core { left:calc(var(--s) * .2071); top:calc(var(--s) * -.14645); width:var(--s); height:var(--s); border-radius:calc(var(--s) * .11); background:var(--mint-right); transform:rotateX(60deg) rotateZ(45deg) scale(1.012); z-index:1; }
+
+  /* 顶面 */
+  .face-top { left:calc(var(--s) * .2071); top:calc(var(--s) * -.14645); width:var(--s); height:var(--s); border-radius:calc(var(--s) * .11); transform:rotateX(60deg) rotateZ(45deg); z-index:3; box-shadow:inset 0 0 calc(var(--s) * .12) rgba(255,255,255,.9), inset 0 0 0 1px rgba(255,255,255,.62), 0 calc(var(--s) * .02) calc(var(--s) * .05) rgba(90,150,130,.10); }
+  .face-top::before { content:""; position:absolute; inset:0; border-radius:inherit; background:radial-gradient(58% 52% at 28% 22%, rgba(255,255,255,.75), rgba(255,255,255,0) 70%); }
+
+  /* 左侧面 */
+  .face-left { left:0; top:calc(var(--s) * .35355); width:calc(var(--s) * .7071); height:var(--d); transform:skewY(26.565deg); transform-origin:top left; z-index:2; border-radius:0 0 calc(var(--s) * .05) calc(var(--s) * .05); box-shadow:inset 0 calc(var(--s) * .02) 0 rgba(255,255,255,.42), inset calc(var(--s) * .09) 0 calc(var(--s) * .12) rgba(255,255,255,.22), inset 0 calc(var(--s) * -.14) calc(var(--s) * .16) rgba(60,120,110,.10); }
+
+  /* 右侧面 */
+  .face-right { left:calc(var(--s) * .7071); top:calc(var(--s) * .7071); width:calc(var(--s) * .7071); height:var(--d); transform:skewY(-26.565deg); transform-origin:top left; z-index:2; border-radius:0 0 calc(var(--s) * .05) calc(var(--s) * .05); box-shadow:inset 0 calc(var(--s) * .02) 0 rgba(255,255,255,.28), inset calc(var(--s) * -.10) 0 calc(var(--s) * .14) rgba(30,90,80,.12), inset 0 calc(var(--s) * -.14) calc(var(--s) * .16) rgba(40,100,90,.12); }
+
+  /* 颜色 */
+  .block--front .face-top { background:linear-gradient(148deg,#ECFCF4 0%,var(--mint-top) 48%,#C2F1DE 100%); }
+  .block--front .face-left { background:linear-gradient(180deg,var(--mint-left) 0%,#9FE3C9 100%); }
+  .block--front .face-right { background:linear-gradient(180deg,var(--mint-right) 0%,#7BCFAD 100%); }
+  .block--front .face-core { background:#A9E7CF; }
+  .block--next .face-top { background:linear-gradient(148deg,#FFF6FA 0%,var(--pink-top) 48%,#FFD2E3 100%); }
+  .block--next .face-left { background:linear-gradient(180deg,var(--pink-left) 0%,#FFB3D0 100%); }
+  .block--next .face-right { background:linear-gradient(180deg,var(--pink-right) 0%,#E997B8 100%); }
+  .block--next .face-core { background:#FFBBD5; }
+
+  /* 方块落地投影 */
+  .block::after { content:""; position:absolute; left:calc(var(--s) * .7071); top:calc(var(--s) * 1.22); width:calc(var(--s) * 1.12); height:calc(var(--s) * .26); transform:translateX(-50%); border-radius:50%; background:radial-gradient(closest-side, rgba(108,88,140,.30), rgba(108,88,140,.12) 58%, rgba(108,88,140,0) 78%); filter:blur(calc(var(--s) * .04)); z-index:0; }
+
+  /* 小猪 */
+  .hero { position:absolute; left:calc(var(--s) * .7071); top:calc(var(--s) * .35355); width:calc(var(--s) * .56); height:calc(var(--s) * .64); transform:translate(-50%,-100%); z-index:5; }
+  .pig-shadow { position:absolute; left:50%; bottom:-11%; width:112%; height:24%; transform:translateX(-50%); border-radius:50%; background:radial-gradient(closest-side, rgba(72,124,106,.55), rgba(72,124,106,.22) 54%, rgba(72,124,106,0) 76%); filter:blur(2px); transition:transform .18s ease, opacity .18s ease; }
+  .pig-breathe { position:absolute; inset:0; animation:breathe 3.6s ease-in-out infinite; }
+  @keyframes breathe { 0%,100%{ transform:translateY(0) scale(1,1); } 50%{ transform:translateY(-8%) scale(1.035,.985); } }
+  .pig { position:absolute; inset:0; transform-origin:50% 100%; transition:transform .16s cubic-bezier(.3,1.5,.5,1); }
+  .ear { position:absolute; top:0; width:34%; height:34%; border-radius:52% 52% 42% 42% / 68% 68% 34% 34%; background:linear-gradient(165deg,#FFE2EE,#FFBBD3 70%,#FFA9C8); box-shadow:inset -2px -3px 6px rgba(226,132,166,.30), 0 2px 4px rgba(226,150,180,.18); }
+  .ear--left { left:8%; transform:rotate(-18deg); }
+  .ear--right { right:8%; transform:rotate(18deg); }
+  .ear::after { content:""; position:absolute; left:50%; bottom:14%; width:46%; height:54%; transform:translateX(-50%); border-radius:50%; background:linear-gradient(180deg,#FFA8C8,#FF93B8); opacity:.85; }
+  .pig-body { position:absolute; inset:7% 0 10% 0; border-radius:48% 48% 44% 44% / 54% 54% 46% 46%; background:linear-gradient(163deg,#FFFFFF 0%,#FFF4F9 42%,#FFDEEB 100%); box-shadow:inset -7px -10px 18px rgba(255,140,180,.20), inset 7px 9px 16px rgba(255,255,255,.92), 0 10px 18px rgba(206,130,166,.20); }
+  .pig-body::before { content:""; position:absolute; left:16%; top:12%; width:30%; height:22%; border-radius:50%; background:radial-gradient(closest-side,rgba(255,255,255,.95),rgba(255,255,255,0)); }
+  .eye { position:absolute; top:40%; width:12.5%; height:15%; border-radius:50%; background:radial-gradient(60% 60% at 32% 26%,#8A6270 0%,#4E3542 62%,#3A2730 100%); transform-origin:center; animation:blink 5s ease-in-out infinite; }
+  .eye--left { left:26%; }
+  .eye--right { right:26%; }
+  .eye::after { content:""; position:absolute; left:18%; top:16%; width:34%; height:34%; border-radius:50%; background:rgba(255,255,255,.92); }
+  @keyframes blink { 0%,90%,100%{ transform:scaleY(1); } 93%,96%{ transform:scaleY(.12); } }
+  .blush { position:absolute; top:56%; width:20%; height:11%; border-radius:50%; background:radial-gradient(closest-side,rgba(255,138,178,.62),rgba(255,138,178,.18) 62%,rgba(255,138,178,0) 78%); filter:blur(1px); }
+  .blush--left { left:9%; }
+  .blush--right { right:9%; }
+  .snout { position:absolute; left:50%; top:54%; width:36%; height:24%; transform:translateX(-50%); border-radius:50% 50% 46% 46% / 46% 46% 54% 54%; background:linear-gradient(160deg,#FFD2E2,#FFAFCB); box-shadow:inset 0 -3px 6px rgba(212,110,148,.30), inset 0 2px 4px rgba(255,255,255,.55), 0 2px 3px rgba(206,126,158,.16); }
+  .snout::before, .snout::after { content:""; position:absolute; top:38%; width:17%; height:30%; border-radius:50%; background:#D97C9D; opacity:.78; }
+  .snout::before { left:24%; }
+  .snout::after { right:24%; }
+  .mouth { position:absolute; left:50%; top:79%; width:10%; height:5%; transform:translateX(-50%); border-radius:0 0 60% 60%; border-bottom:2px solid rgba(190,110,138,.85); }
+  .foot { position:absolute; bottom:1%; width:26%; height:13%; border-radius:50%; background:linear-gradient(180deg,#FFF3F9,#FFDCEA); box-shadow:0 2px 3px rgba(206,140,168,.20); }
+  .foot--left { left:12%; }
+  .foot--right { right:12%; }
+
+  /* 分数面板 */
+  .score-panel { position:absolute; z-index:10; left:max(18px, env(safe-area-inset-left)); top:max(20px, env(safe-area-inset-top)); padding:14px 22px 13px; border-radius:26px; background:linear-gradient(152deg,rgba(255,255,255,.95),rgba(255,249,253,.72)); box-shadow:0 12px 30px rgba(178,142,186,.22), 0 2px 0 rgba(255,255,255,.9) inset, 0 0 0 1px rgba(255,255,255,.7); backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px); }
+  .score-line { display:flex; align-items:baseline; gap:10px; }
+  .score-label { font-size:13px; letter-spacing:.14em; color:var(--ink-soft); }
+  .score-num { font-family:var(--font-num); font-weight:600; font-size:clamp(28px,7.4vmin,40px); line-height:.95; color:var(--ink); text-shadow:0 2px 0 rgba(255,255,255,.9), 0 4px 10px rgba(255,170,200,.45); }
+  .score-sub { display:flex; align-items:center; gap:6px; margin-top:7px; padding-top:8px; border-top:1px dashed rgba(190,168,200,.45); font-size:12px; letter-spacing:.1em; color:var(--ink-soft); }
+  .best-num { font-family:var(--font-num); font-weight:500; font-size:15px; color:#B07E9A; margin-left:2px; }
+  .star-icon { width:13px; height:13px; fill:#FFAFCF; filter:drop-shadow(0 0 4px rgba(255,255,255,.9)); }
+
+  /* 底部 HUD */
+  .hud { position:absolute; z-index:10; left:50%; bottom:max(26px, env(safe-area-inset-bottom)); transform:translateX(-50%); width:min(86vw,360px); display:flex; flex-direction:column; align-items:center; gap:18px; pointer-events:none; }
+  .charge { width:100%; opacity:0; transform:translateY(14px) scale(.94); transition:opacity .26s ease, transform .26s cubic-bezier(.3,1.3,.5,1); }
+  .charge-label { margin-bottom:8px; text-align:center; font-size:13px; letter-spacing:.2em; color:#8E6F8A; text-shadow:0 1px 0 rgba(255,255,255,.8); }
+  .charge-track { position:relative; height:18px; padding:3px; border-radius:99px; background:rgba(255,255,255,.52); box-shadow:inset 0 2px 6px rgba(172,142,180,.22), 0 0 0 1px rgba(255,255,255,.85), 0 8px 22px rgba(255,150,195,.26); overflow:hidden; }
+  .charge-fill { position:relative; height:100%; width:10%; border-radius:99px; overflow:hidden; background:linear-gradient(90deg,#FFE1A8 0%,#FFB1CD 42%,#FF86B6 100%); box-shadow:0 0 16px rgba(255,130,178,.65), inset 0 1px 0 rgba(255,255,255,.9);  animation-play-state:paused; }
+  .charge-fill::after { content:""; position:absolute; inset:0; background:linear-gradient(90deg,rgba(255,255,255,0),rgba(255,255,255,.8),rgba(255,255,255,0)); transform:translateX(-120%); animation:shimmer 1.6s linear infinite; }
+  .charge-fill::before { content:""; position:absolute; left:0; top:0; width:26%; height:100%; background:radial-gradient(closest-side,rgba(255,255,255,.85),rgba(255,255,255,0)); }
+  @keyframes chargeUp { from{ width:10%; } to{ width:100%; } }
+  @keyframes shimmer { from{ transform:translateX(-120%); } to{ transform:translateX(220%); } }
+
+  /* 提示 */
+  .hint { position:relative; display:inline-flex; align-items:center; gap:10px; padding:13px 28px 16px; border-radius:99px; background:linear-gradient(180deg,rgba(255,255,255,.92),rgba(255,247,251,.66)); box-shadow:0 0 0 1px rgba(255,255,255,.92) inset, 0 10px 26px rgba(255,152,196,.30), 0 0 30px rgba(255,178,212,.45); backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px); transition:transform .2s ease, opacity .2s ease, box-shadow .2s ease; }
+  .hint::before { content:""; position:absolute; inset:-9px; border-radius:99px; border:2px solid rgba(255,166,205,.42); animation:ringPulse 2.6s ease-out infinite; pointer-events:none; }
+  .hint-dot { width:9px; height:9px; border-radius:50%; background:#FF9DC1; box-shadow:0 0 0 3px rgba(255,157,193,.22), 0 0 12px rgba(255,141,182,.85); animation:dotPulse 2.6s ease-in-out infinite; }
+  .hint-text { font-size:clamp(17px,4.4vmin,23px); letter-spacing:.14em; color:#7C5B73; text-shadow:0 0 12px rgba(255,140,185,.55), 0 1px 0 rgba(255,255,255,.9); animation:hintGlow 2.6s ease-in-out infinite; }
+  @keyframes ringPulse { 0%{ transform:scale(.97); opacity:.7; } 70%{ transform:scale(1.08); opacity:.16; } 100%{ transform:scale(1.1); opacity:0; } }
+  @keyframes dotPulse { 0%,100%{ transform:scale(.86); } 50%{ transform:scale(1.12); } }
+  @keyframes hintGlow { 0%,100%{ text-shadow:0 0 10px rgba(255,140,185,.42), 0 1px 0 rgba(255,255,255,.9); } 50%{ text-shadow:0 0 20px rgba(255,150,195,.85), 0 0 34px rgba(255,190,220,.55), 0 1px 0 rgba(255,255,255,.95); } }
+
+  /* 蓄力状态 */
+  .press:active ~ .hud .charge, .game.is-charging .hud .charge { opacity:1; transform:translateY(0) scale(1); }
+  .press:active ~ .hud .charge-fill, .game.is-charging .hud .charge-fill { animation-play-state:running; }
+  .press:active ~ .scene .pig, .game.is-charging .scene .pig { transform:scaleX(1.16) scaleY(.80); }
+  .press:active ~ .scene .pig-breathe, .game.is-charging .scene .pig-breathe { animation-play-state:paused; }
+  .press:active ~ .scene .pig-shadow, .game.is-charging .scene .pig-shadow { transform:translateX(-50%) scaleX(1.16) scaleY(.86); opacity:.82; }
+  .press:active ~ .hud .hint, .game.is-charging .hud .hint { transform:scale(.96); opacity:.42; }
+    /* ==================== 暴力修复黑框遮挡 ==================== */
+  #jump-game-screen {
+    background: transparent !important;
+    background-color: transparent !important;
+  }
+  
+  /* 强制让小猪和方块跑到最上层，无视任何遮挡 */
+  #jump-game-screen .scene {
+    z-index: 9999 !important;
+  }
+  #jump-game-screen .block {
+    z-index: 9999 !important;
+  }
+  #jump-game-screen .hero {
+    z-index: 10000 !important;
+  }
+  
+  /* 分数面板和按钮也拉到最上层 */
+  #jump-game-screen .score-panel,
+  #jump-game-screen .hud,
+  #jump-game-screen #btn-exit-jump {
+    z-index: 10001 !important;
+  }
+  /* ==================== 跳一跳最终修复补丁 ==================== */
+  /* 1. 干掉黑框，保证天空铺满 */
+  #jump-game-screen { background: transparent !important; }
+  #jump-game-screen .sky { display: block !important; z-index: 1 !important; }
+  
+  /* 2. 把方块、猪猪、UI拉到最上层 */
+  #jump-game-screen .scene { z-index: 10 !important; }
+  #jump-game-screen .score-panel, 
+  #jump-game-screen .press, 
+  #jump-game-screen #btn-exit-jump { z-index: 100 !important; }
+
+  /* 3. 强制跳一跳的底部 HUD 变透明、回归原位，绝对不继承赛跑的深蓝色大药丸！ */
+  #jump-game-screen .hud {
+    background: transparent !important;
+    border-radius: 0 !important;
+    top: auto !important;
+    bottom: 30px !important;
+    padding: 0 !important;
+    box-shadow: none !important;
+    width: 90% !important;
+    z-index: 100 !important;
+  }
+    /* ==================== 强制 UI 浮在最顶层 ==================== */
+  /* 把分数面板、退出按钮拉高 */
+  #jump-game-screen .score-panel,
+  #jump-game-screen #btn-exit-jump {
+    z-index: 9999 !important;
+  }
+
+  /* 把底部的蓄力条和提示文字拉到最高，并且允许点击穿透 */
+  #jump-game-screen .hud {
+    z-index: 9999 !important;
+    pointer-events: none !important; /* 防止挡住全屏按住蓄力的点击 */
+  }
+
+  /* 把全屏的按住热区调整到合适的位置，保证既在 UI 之下，又在方块之上 */
+  #jump-game-screen .press {
+    z-index: 9990 !important;
+  }
+
+  /* 把方块和猪猪强行压回底层，让它们成为背景 */
+  #jump-game-screen .scene {
+    z-index: 10 !important;
+  }
 </style>
 </head>
 <body>
@@ -1074,6 +1305,7 @@
 
   <!-- 右上角工具栏 -->
   <div class="quick-tools" id="quick-tools">
+        <div id="closet-icon" class="game-hall-icon" role="button" tabindex="0" title="欧巴的衣橱" style="background: #e8f4f8; border-color: #b3e5fc;">👔</div>
     <div id="coin-display" class="coin-display" role="button" tabindex="0" title="点击打卡签到" aria-label="打卡签到，查看猪猪币">
       <span class="coin-icon">💰</span>
       <span id="coin-count">0</span>
@@ -1108,9 +1340,12 @@
             <p>入场费：20 猪猪币</p>
           </div>
         </div>
-        <div class="game-item">
-          <div class="game-icon">🏓</div>
-          <div class="game-info"><h3>乒乓球</h3><p>敬请期待...</p></div>
+                <div class="game-item active" id="btn-start-jump">
+          <div class="game-icon">🐸</div>
+          <div class="game-info">
+            <h3>猪猪跳一跳</h3>
+            <p>入场费：30 猪猪币</p>
+          </div>
         </div>
         <div class="game-item active" id="btn-start-catch">
           <div class="game-icon">🪙</div>
@@ -1121,6 +1356,46 @@
         </div>
       </div>
       <button id="btn-close-hall" class="close-btn">关闭大厅</button>
+    </div>
+  </div>
+
+    <!-- 欧巴的衣橱弹窗 -->
+  <div id="closet-modal" class="dev-modal">
+    <div class="dev-box" style="background: #f0f8ff; border: 2px dashed #81d4fa; width: 90vw; max-width: 360px;">
+      <h2 style="color: #0288d1; margin-bottom: 5px;">👔 欧巴的衣橱</h2>
+      <div id="daily-coupon" style="background: #ffeb3b; color: #d32f2f; padding: 8px; border-radius: 8px; font-size: 14px; font-weight: bold; margin-bottom: 15px; transform: rotate(-2deg); box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
+        今日黑心特惠：加载中...
+      </div>
+      <p style="color: #888; font-size: 12px; margin-bottom: 15px;">点击购买或穿戴</p>
+      
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px;">
+        <!-- 默认原皮 -->
+        <button class="cloth-btn" data-item="default" data-price="0" style="background:#fff; border:2px solid #ddd; color:#333; padding:10px; border-radius:10px; font-weight:bold;">
+          原皮 🐷<br><span style="font-size:12px;color:#888;">已拥有</span>
+        </button>
+        
+        <!-- 兔耳 999 -->
+        <button class="cloth-btn" data-item="rabbit" data-price="999" style="background:#fff0f5; border:2px solid #ffb6c1; color:#d15b5b; padding:10px; border-radius:10px; font-weight:bold;">
+          兔耳朵 🐰<br><span style="font-size:12px;color:#888;">999 币</span>
+        </button>
+        
+        <!-- 皇冠 888 -->
+        <button class="cloth-btn" data-item="crown" data-price="888" style="background:#fffde7; border:2px solid #ffe082; color:#f57f17; padding:10px; border-radius:10px; font-weight:bold;">
+          金皇冠 👑<br><span style="font-size:12px;color:#888;">888 币</span>
+        </button>
+        
+        <!-- 墨镜 500 -->
+        <button class="cloth-btn" data-item="glasses" data-price="500" style="background:#e0f7fa; border:2px solid #80deea; color:#00838f; padding:10px; border-radius:10px; font-weight:bold;">
+          黑墨镜 🕶️<br><span style="font-size:12px;color:#888;">500 币</span>
+        </button>
+        
+        <!-- 围巾 100 (丑东西) -->
+        <button class="cloth-btn" data-item="scarf" data-price="100" style="background:#ffebee; border:2px solid #ef9a9a; color:#c62828; padding:10px; border-radius:10px; font-weight:bold;">
+          红围巾 🧣<br><span style="font-size:12px;color:#888;">100 币</span>
+        </button>
+      </div>
+      
+      <button id="btn-close-closet" class="dev-btn secondary" style="width: 100%;">关闭衣橱</button>
     </div>
   </div>
 
@@ -1138,16 +1413,34 @@
   </div>
 
   <!-- 爱豆小卖部弹窗 -->
+    <!-- 爱豆小卖部弹窗（带图鉴） -->
   <div id="shop-modal" class="dev-modal">
-    <div class="dev-box" style="background: #fffaf0; border: 2px dashed #ffd54f;">
-      <h2 style="color: #f57c00; margin-bottom: 15px;">🍖 爱豆小卖部</h2>
-      <p style="color: #888; font-size: 13px; margin-bottom: 15px;">你一共投喂了爱豆 <span id="feed-count" style="color: #f57c00; font-weight: bold; font-size: 18px;">0</span> 次</p>
-      <div style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px;">
-        <button class="food-btn" data-price="20" data-item="cake" style="background:#ffe4e1; color:#d15b5b;">🍰 草莓小蛋糕 (20币)</button>
-        <button class="food-btn" data-price="50" data-item="chicken" style="background:#ffe0b2; color:#e65100;">🍗 超大份炸鸡 (50币)</button>
-        <button class="food-btn" data-price="5" data-item="paper" style="background:#e0e0e0; color:#616161;">📜 过期练功券 (5币)</button>
+    <div class="dev-box" style="background: #fffaf0; border: 2px dashed #ffd54f; width: 90vw; max-width: 360px; padding: 20px 15px;">
+      <h2 style="color: #f57c00; margin-bottom: 10px;">🍖 梅梅的离谱黑店</h2>
+      
+      <!-- 顶部切换标签 -->
+      <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+        <button id="tab-shop" class="dev-btn active-tab" style="flex: 1; background: #ffd54f; color: #f57c00;">🍔 购买区</button>
+        <button id="tab-collection" class="dev-btn" style="flex: 1; background: #f0f0f0; color: #888;">📖 图鉴收集</button>
       </div>
-      <button id="btn-close-shop" class="dev-btn secondary" style="width: 100%;">关闭小卖部</button>
+
+      <!-- 购买区（网格排版） -->
+      <div id="view-shop" style="display: block;">
+        <p style="color: #888; font-size: 13px; margin-bottom: 10px;">投喂次数：<span id="feed-count" style="color: #f57c00; font-weight: bold;">0</span> 次</p>
+        <div id="food-list" style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; max-height: 50vh; overflow-y: auto; padding-right: 5px;">
+          <!-- 食物按钮会由 JS 动态生成 -->
+        </div>
+      </div>
+
+      <!-- 图鉴区 -->
+      <div id="view-collection" style="display: none;">
+        <p style="color: #888; font-size: 13px; margin-bottom: 10px;">已解锁：<span id="unlock-count" style="color: #4caf50; font-weight: bold;">0</span> / <span id="total-count" style="color: #4caf50; font-weight: bold;">0</span></p>
+        <div id="collection-list" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; max-height: 50vh; overflow-y: auto; padding-right: 5px;">
+          <!-- 图鉴图标会由 JS 动态生成 -->
+        </div>
+      </div>
+
+      <button id="btn-close-shop" class="dev-btn secondary" style="width: 100%; margin-top: 15px;">关闭店铺</button>
     </div>
   </div>
 
@@ -1198,6 +1491,76 @@
     <button class="quit" type="button" id="btn-exit-catch" style="top: 15px; right: 15px; left: auto; font-size: 11px; padding: 4px 10px; background: rgba(255,255,255,0.8); color: #555; border: 2px solid rgba(0,0,0,0.1); box-shadow: none;">
       ✕ 放弃
     </button>
+  </div>
+    <!-- 跳一跳游戏画面 -->
+     <!-- 猪猪跳一跳游戏画面（高定版） -->
+  <div id="jump-game-screen" style="display: none; position: fixed; inset: 0; z-index: 9999; overflow: hidden;">
+    <div class="game" id="jump-game-container">
+      <!-- 全屏透明的按住热区 -->
+      <button class="press" id="jump-press-btn" type="button" aria-label="按住屏幕蓄力"></button>
+
+      <!-- 背景装饰 -->
+      <div class="sky" aria-hidden="true">
+        <div class="cloud cloud--1"></div>
+        <div class="cloud cloud--2"></div>
+        <div class="cloud cloud--3"></div>
+        <div class="cloud cloud--4"></div>
+        <svg class="star star--1" viewBox="0 0 24 24"><path d="M12 1c.9 5.6 4.9 9.6 10.5 10.5-5.6.9-9.6 4.9-10.5 10.5-.9-5.6-4.9-9.6-10.5-10.5C7.1 10.6 11.1 6.6 12 1z"/></svg>
+        <svg class="star star--2" viewBox="0 0 24 24"><path d="M12 1c.9 5.6 4.9 9.6 10.5 10.5-5.6.9-9.6 4.9-10.5 10.5-.9-5.6-4.9-9.6-10.5-10.5C7.1 10.6 11.1 6.6 12 1z"/></svg>
+        <svg class="star star--3" viewBox="0 0 24 24"><path d="M12 1c.9 5.6 4.9 9.6 10.5 10.5-5.6.9-9.6 4.9-10.5 10.5-.9-5.6-4.9-9.6-10.5-10.5C7.1 10.6 11.1 6.6 12 1z"/></svg>
+        <svg class="star star--4" viewBox="0 0 24 24"><path d="M12 1c.9 5.6 4.9 9.6 10.5 10.5-5.6.9-9.6 4.9-10.5 10.5-.9-5.6-4.9-9.6-10.5-10.5C7.1 10.6 11.1 6.6 12 1z"/></svg>
+        <svg class="star star--5" viewBox="0 0 24 24"><path d="M12 1c.9 5.6 4.9 9.6 10.5 10.5-5.6.9-9.6 4.9-10.5 10.5-.9-5.6-4.9-9.6-10.5-10.5C7.1 10.6 11.1 6.6 12 1z"/></svg>
+      </div>
+
+      <!-- 方块 + 小人 -->
+      <div class="scene" aria-hidden="true">
+        <div class="pair" id="jump-pair">
+          <!-- 右边的粉方块 -->
+                    <div class="block block--next" id="block-next">
+            <div class="face face-core"></div><div class="face face-left"></div><div class="face face-right"></div><div class="face face-top"></div>
+          </div>
+                    <div class="block block--front" id="block-front">
+            <div class="face face-core"></div>
+            <div class="face face-left"></div>
+            <div class="face face-right"></div>
+            <div class="face face-top"></div>
+            
+            <!-- 猪猪塞回这里！ -->
+            <div class="hero" id="hero">
+              <div class="pig-shadow"></div>
+              <div class="pig-breathe">
+                <div class="pig">
+                  <div class="ear ear--left"></div><div class="ear ear--right"></div>
+                  <div class="pig-body"><div class="eye eye--left"></div><div class="eye eye--right"></div><div class="blush blush--left"></div><div class="blush blush--right"></div><div class="snout"></div><div class="mouth"></div></div>
+                  <div class="foot foot--left"></div><div class="foot foot--right"></div>
+                </div>
+              </div>
+            </div>
+            
+          </div>
+
+      <!-- 分数面板 -->
+      <div class="score-panel">
+        <div class="score-line">
+          <span class="score-label">分数</span>
+          <span class="score-num" id="jump-score">0</span>
+        </div>
+        <div class="score-sub">
+          <svg class="star-icon" viewBox="0 0 24 24"><path d="M12 1c.9 5.6 4.9 9.6 10.5 10.5-5.6.9-9.6 4.9-10.5 10.5-.9-5.6-4.9-9.6-10.5-10.5C7.1 10.6 11.1 6.6 12 1z"/></svg>
+          <span>最高分</span>
+          <span class="best-num" id="jump-best">0</span>
+        </div>
+      </div>
+
+      <!-- 底部 UI -->
+      <div class="hud">
+        <div class="charge" aria-hidden="true"><div class="charge-label">蓄力中</div><div class="charge-track"><div class="charge-fill"></div></div></div>
+        <div class="hint"><span class="hint-dot"></span><span class="hint-text">按住蓄力</span></div>
+      </div>
+
+      <!-- 退出按钮 -->
+      <button id="btn-exit-jump" style="position: absolute; top: 20px; right: 20px; z-index: 999; background: rgba(255,255,255,0.9); border: 2px solid #ffb6c1; padding: 8px 16px; border-radius: 20px; font-size: 14px; font-weight: bold; color: #d15b5b; box-shadow: 0 4px 10px rgba(0,0,0,0.1); cursor: pointer;">✕ 退出</button>
+    </div>
   </div>
   <script>
     // ==================== 基础元素 ====================
@@ -2367,78 +2730,166 @@
         }, 1500);
       });
     }
-        // ==================== 爱豆小卖部（喂养系统） ====================
+           // ==================== 爱豆小卖部（图鉴收集版） ====================
     const shopIcon = document.getElementById('shop-icon');
     const shopModal = document.getElementById('shop-modal');
     const btnCloseShop = document.getElementById('btn-close-shop');
     const feedCountText = document.getElementById('feed-count');
-    const foodBtns = document.querySelectorAll('.food-btn');
+    const foodList = document.getElementById('food-list');
+    const collectionList = document.getElementById('collection-list');
+    
+    // 标签切换
+    const tabShop = document.getElementById('tab-shop');
+    const tabCollection = document.getElementById('tab-collection');
+    const viewShop = document.getElementById('view-shop');
+    const viewCollection = document.getElementById('view-collection');
+    const unlockCountText = document.getElementById('unlock-count');
+    const totalCountText = document.getElementById('total-count');
 
-    // 读取/保存投喂次数
+    // 【菜单池】超长食物列表
+    const menuData = [
+      // 正常好吃
+      { id: 'cake', name: '草莓小蛋糕', emoji: '🍰', price: 20, text: '好甜！谢谢宝宝~ ❤️', color: '#ffe4e1' },
+      { id: 'chicken', name: '超大份炸鸡', emoji: '🍗', price: 50, text: '嗝~ 太满足了，胖了算你的 💨', color: '#ffe0b2' },
+      { id: 'milktea', name: '珍珠奶茶', emoji: '🧋', price: 30, text: '咕噜咕噜... 满分快乐水！', color: '#f5e6cc' },
+      { id: 'sundae', name: '草莓圣代', emoji: '🍦', price: 40, text: '好冰好冰！🥶', color: '#e0f7fa' },
+      { id: 'noodle', name: '烤冷面加肠', emoji: '🍳', price: 15, text: '就是这个味儿！', color: '#fff3e0' },
+      { id: 'hotdog', name: '芝士热狗', emoji: '🌭', price: 35, text: '拉出长长的丝~ 🧀', color: '#ffebee' },
+      { id: 'rice', name: '梅梅的蛋炒饭', emoji: '🍚', price: 0, text: '不管做成什么样我都爱吃！', color: '#f5f5f5' },
+      
+      // 天价尊享
+      { id: 'steak', name: '战斧牛排', emoji: '🥩', price: 888, text: '吃完长出翅膀飞了一圈 🕊️', color: '#efebe9' },
+      { id: 'noodle82', name: '82年老坛酸菜', emoji: '🍜', price: 666, text: '金光闪闪！土豪金皮肤体验卡 💰', color: '#fff8e1' },
+      { id: 'honey', name: '野生纯蜂蜜', emoji: '🍯', price: 520, text: '冒出好多小熊围着转圈 🐻', color: '#fffde7' },
+      { id: 'feast', name: '满汉全席', emoji: '🍱', price: 1314, text: '满屏食物掉落！大满足！🎇', color: '#ffccbc' },
+      
+      // 整蛊黑店
+      { id: 'paper', name: '过期练功券', emoji: '📜', price: 5, text: '呸呸呸！你喂我吃纸？！😝', color: '#e0e0e0' },
+      { id: 'wig', name: '中华的假发', emoji: '👨‍🦲', price: 10, text: '头皮凉凉的... 🥶', color: '#e0e0e0' },
+      { id: 'feet', name: '建国的大脚丫', emoji: '🦶', price: 8, text: '呕... 这什么味道！🤢', color: '#f5f5f5' },
+      { id: 'smoke', name: '利群的二手烟', emoji: '🚬', price: 1, text: '咳咳咳... 🤧', color: '#cfd8dc' },
+      { id: 'belt', name: '王雨婷爸爸的皮带', emoji: '🥋', price: 1, text: '爸爸别打我！😭', color: '#8d6e63' },
+      { id: 'fish', name: '仰望星空派', emoji: '🐟', price: 25, text: '鱼头死死盯着我... 👀', color: '#b3e5fc' },
+      { id: 'mushroom', name: '红伞伞白杆杆', emoji: '🍄', price: 20, text: '看到好多小人跳舞... 幻觉！💫', color: '#ffcdd2' },
+      { id: 'bean', name: '没熟的豆角', emoji: '🫘', price: 12, text: '等一下，我肚子有点... 🚽', color: '#c8e6c9' },
+      { id: 'slipper', name: '狗咬过的拖鞋', emoji: '🥿', price: 3, text: '嘎嘣脆，鸡肉味！🐶', color: '#d7ccc8' },
+      { id: 'gum', name: '别人嚼的口香糖', emoji: '🍬', price: 2, text: '嫌弃地吐进垃圾桶 🗑️', color: '#f8bbd0' },
+      { id: 'code', name: '三天三夜的代码', emoji: '💻', price: 1, text: '满嘴都是头发的味道（掉发警告）👴', color: '#cfd8dc' },
+
+      // 惊喜/魔法
+      { id: 'lollipop', name: '猪猪侠棒棒糖', emoji: '🍭', price: 50, text: '变成猪头 3 秒！🐷', color: '#f48fb1' },
+      { id: 'bread', name: '记忆面包', emoji: '🍞', price: 100, text: '智力+1，头顶冒出灯泡 💡', color: '#fff9c4' },
+      { id: 'potion', name: '爱情魔药', emoji: '🧪', price: 131, text: '对着屏幕抛媚眼 😘', color: '#e1bee7' },
+      { id: 'invisible', name: '隐身药水', emoji: '👻', price: 200, text: '感觉身体变透明了 3 秒...', color: '#e0f7fa' },
+      { id: 'spinach', name: '大力菠菜', emoji: '🥬', price: 150, text: '肌肉暴增！屏幕震动！💪', color: '#c8e6c9' },
+      { id: 'cola', name: '神仙快乐水', emoji: '🥤', price: 66, text: '在房间里疯狂乱跑！🏃‍♂️💨', color: '#b3e5fc' }
+    ];
+
+    // 读取记录
     let feedCount = parseInt(localStorage.getItem('idolFeedCount')) || 0;
+    let unlockedFoods = JSON.parse(localStorage.getItem('idolUnlockedFoods')) || ['paper']; // 默认解锁过练功券
     feedCountText.textContent = feedCount;
+
+    // 初始化渲染
+    function renderShop() {
+      // 1. 渲染购买列表
+      foodList.innerHTML = '';
+      menuData.forEach(food => {
+        const btn = document.createElement('button');
+        btn.className = 'food-item-btn';
+        btn.style.background = food.color;
+        btn.innerHTML = `
+          <div class="f-emoji">${food.emoji}</div>
+          <div class="f-name">${food.name}</div>
+          <div class="f-price">${food.price} 币</div>
+        `;
+        btn.onclick = () => buyFood(food);
+        foodList.appendChild(btn);
+      });
+
+      // 2. 渲染图鉴
+      collectionList.innerHTML = '';
+      let unlockedCount = 0;
+      totalCountText.textContent = menuData.length;
+
+      menuData.forEach(food => {
+        const div = document.createElement('div');
+        const isUnlocked = unlockedFoods.includes(food.id);
+        if (isUnlocked) {
+          unlockedCount++;
+          div.className = 'collection-item unlocked';
+          div.textContent = food.emoji;
+          div.title = food.name;
+        } else {
+          div.className = 'collection-item locked';
+          div.textContent = '❓';
+        }
+        collectionList.appendChild(div);
+      });
+      unlockCountText.textContent = unlockedCount;
+    }
+
+    // 切换标签
+    tabShop.onclick = () => {
+      viewShop.style.display = 'block';
+      viewCollection.style.display = 'none';
+      tabShop.style.background = '#ffd54f'; tabShop.style.color = '#f57c00';
+      tabCollection.style.background = '#f0f0f0'; tabCollection.style.color = '#888';
+    };
+    tabCollection.onclick = () => {
+      viewShop.style.display = 'none';
+      viewCollection.style.display = 'block';
+      tabCollection.style.background = '#4caf50'; tabCollection.style.color = '#fff';
+      tabShop.style.background = '#f0f0f0'; tabShop.style.color = '#888';
+    };
 
     shopIcon.addEventListener('click', () => {
       shopModal.classList.add('active');
+      renderShop();
+      tabShop.click(); // 默认打开购买区
     });
-    btnCloseShop.addEventListener('click', () => {
+    btnCloseShop.addEventListener('click', () => shopModal.classList.remove('active'));
+
+    // 购买并投喂逻辑
+    function buyFood(food) {
+      if (userData.coins < food.price) {
+        showToast('猪猪币不够啦，买不起这个！');
+        return;
+      }
+
+      // 扣钱
+      userData.coins -= food.price;
+      updateCoinDisplay();
+      
+      // 记录
+      feedCount++;
+      feedCountText.textContent = feedCount;
+      localStorage.setItem('idolFeedCount', feedCount);
+
+      if (!unlockedFoods.includes(food.id)) {
+        unlockedFoods.push(food.id);
+        localStorage.setItem('idolUnlockedFoods', JSON.stringify(unlockedFoods));
+        showToast(`✨ 解锁新图鉴：${food.name}！`);
+      }
+
+      // 关闭商店，触发动画
       shopModal.classList.remove('active');
-    });
+      triggerIdolEat(food);
+    }
 
-    foodBtns.forEach(btn => {
-      btn.addEventListener('click', () => {
-        const price = parseInt(btn.dataset.price);
-        const item = btn.dataset.item;
-
-        if (userData.coins < price) {
-          showToast('猪猪币不够啦，买不起这个！');
-          return;
-        }
-
-        // 扣钱
-        userData.coins -= price;
-        updateCoinDisplay();
-        
-        // 增加投喂次数
-        feedCount++;
-        feedCountText.textContent = feedCount;
-        localStorage.setItem('idolFeedCount', feedCount);
-
-        // 关闭商店，让爱豆吃
-        shopModal.classList.remove('active');
-        
-        // 触发爱豆吃东西动画和台词
-        triggerIdolEat(item);
-      });
-    });
-
-    function triggerIdolEat(item) {
+    // 吃东西动画
+    function triggerIdolEat(food) {
       const rect = idol.getBoundingClientRect();
-      // 用之前冒爱心和文字的气泡
       speech.style.left = (rect.left + rect.width / 2 - 60) + 'px';
       speech.style.top = (rect.top - 20) + 'px';
       speech.classList.remove('show'); 
       void speech.offsetWidth; 
       speech.classList.add('show');
 
-      let emojiText = '';
-      let speechText = '';
-
-      if (item === 'cake') {
-        emojiText = '❤️';
-        speechText = '好甜！谢谢宝宝~ 🍰';
-      } else if (item === 'chicken') {
-        emojiText = '💨';
-        speechText = '嗝~（小奶嗝） 太满足了，胖了算你的 🍗';
-      } else if (item === 'paper') {
-        emojiText = '😝';
-        speechText = '呸呸呸！你喂我吃纸？！';
-      }
-
-      speech.textContent = speechText;
+      speech.textContent = food.text;
       
       // 冒 emoji
-      heart.textContent = emojiText;
+      heart.textContent = food.emoji;
       heart.style.left = (rect.left + rect.width / 2 + 10) + 'px';
       heart.style.top = (rect.top + 5) + 'px';
       heart.classList.remove('show'); 
@@ -2623,6 +3074,327 @@
       catchGameScreen.style.display = 'none';
       document.querySelector('.quick-tools').style.display = 'flex';
       devIcon.style.display = 'block';
+    }
+        // ==================== 欧巴的衣橱系统 ====================
+    // ==================== 欧巴的衣橱系统（赛博奸商版） ====================
+    const closetIcon = document.getElementById('closet-icon');
+    const closetModal = document.getElementById('closet-modal');
+    const btnCloseCloset = document.getElementById('btn-close-closet');
+    const clothBtns = document.querySelectorAll('.cloth-btn');
+    const dailyCouponDiv = document.getElementById('daily-coupon');
+
+    let ownedClothes = JSON.parse(localStorage.getItem('idolClothes')) || ['default'];
+    let currentCloth = localStorage.getItem('idolCurrentCloth') || 'default';
+
+    const clothImgs = {
+      'default': 'idol.png',
+      'rabbit': 'idol_rabbit.png',
+      'glasses': 'idol_glasses.png',
+      'scarf': 'idol_scarf.png',
+      'crown': 'idol_crown.png'
+    };
+
+    // ================= 赛博奸商的每日折扣 =================
+    let currentDiscount = { type: 'none', value: 0, text: '今天没有优惠哦~' };
+    const todayDate = new Date().toDateString();
+    const savedCoupon = JSON.parse(localStorage.getItem('idolDailyCoupon'));
+
+    // 如果今天还没抽过券，或者昨天抽的，就重新抽
+    if (!savedCoupon || savedCoupon.date !== todayDate) {
+      // 抽卡概率：30%无优惠，40%打折，30%满减
+      const rand = Math.random();
+      if (rand < 0.3) {
+        currentDiscount = { type: 'none', value: 0, text: '今天没有优惠，原价购买（奸商狂喜）' };
+      } else if (rand < 0.7) {
+        // 7折~9折
+        const discount = Math.floor(Math.random() * 3) + 7;
+        currentDiscount = { type: 'percent', value: discount, text: `今日全场 ${discount} 折！（买贵的最划算）` };
+      } else {
+        // 满 300 减 100 / 满 500 减 200
+        if (Math.random() > 0.5) {
+          currentDiscount = { type: 'minus', threshold: 300, value: 100, text: `今日满 300 减 100！（快凑单）` };
+        } else {
+          currentDiscount = { type: 'minus', threshold: 500, value: 200, text: `今日满 500 减 200！（天价兔耳有救了）` };
+        }
+      }
+      // 存入本地，今天不再变
+      localStorage.setItem('idolDailyCoupon', JSON.stringify({ date: todayDate, discount: currentDiscount }));
+    } else {
+      currentDiscount = savedCoupon.discount;
+    }
+
+    dailyCouponDiv.textContent = currentDiscount.text;
+
+    // ================= 计算最终价格 =================
+    function getFinalPrice(originalPrice) {
+      if (originalPrice === 0) return 0;
+      
+      if (currentDiscount.type === 'percent') {
+        // 打折
+        return Math.floor(originalPrice * (currentDiscount.value / 10));
+      } else if (currentDiscount.type === 'minus') {
+        // 满减
+        if (originalPrice >= currentDiscount.threshold) {
+          return originalPrice - currentDiscount.value;
+        }
+      }
+      return originalPrice;
+    }
+
+    // ================= 更新衣服UI状态 =================
+    function updateIdolCloth() {
+      const imgSrc = clothImgs[currentCloth];
+      
+      document.getElementById('idol').src = imgSrc;
+      document.getElementById('idol-in-swing').src = imgSrc;
+      
+      clothBtns.forEach(btn => {
+        const item = btn.dataset.item;
+        const originalPrice = parseInt(btn.dataset.price);
+        const finalPrice = getFinalPrice(originalPrice);
+        const isOwned = ownedClothes.includes(item);
+        const isWearing = currentCloth === item;
+        
+        // 保存初始的文字模板（比如 "兔耳朵 🐰" 和 原价）
+        if (!btn.dataset.itemName) {
+          btn.dataset.itemName = btn.innerHTML.split('<br>')[0];
+        }
+
+        if (isWearing) {
+          btn.style.boxShadow = '0 0 0 3px #4caf50';
+          btn.innerHTML = `${btn.dataset.itemName}<br><span style="color:#4caf50; font-size:12px;">穿戴中</span>`;
+        } else if (isOwned) {
+          btn.style.boxShadow = 'none';
+          btn.innerHTML = `${btn.dataset.itemName}<br><span style="color:#888; font-size:12px;">点击穿戴</span>`;
+        } else {
+          // 未拥有，显示实时计算后的价格
+          btn.style.boxShadow = 'none';
+          if (finalPrice < originalPrice) {
+            // 有优惠，原价划掉
+            btn.innerHTML = `${btn.dataset.itemName}<br><span style="font-size:12px; color:#888; text-decoration:line-through;">${originalPrice}</span> <span style="font-size:13px; color:#d32f2f; font-weight:bold;">${finalPrice} 币</span>`;
+          } else {
+            btn.innerHTML = `${btn.dataset.itemName}<br><span style="font-size:12px;color:#888;">${finalPrice} 币</span>`;
+          }
+        }
+      });
+    }
+
+    updateIdolCloth();
+
+    closetIcon.addEventListener('click', () => {
+      closetModal.classList.add('active');
+      updateIdolCloth();
+    });
+    btnCloseCloset.addEventListener('click', () => {
+      closetModal.classList.remove('active');
+    });
+
+    // ================= 购买逻辑 =================
+    clothBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const item = btn.dataset.item;
+        const originalPrice = parseInt(btn.dataset.price);
+
+        if (ownedClothes.includes(item)) {
+          currentCloth = item;
+          localStorage.setItem('idolCurrentCloth', currentCloth);
+          updateIdolCloth();
+          showToast('换装成功！✨');
+          return;
+        }
+
+        const finalPrice = getFinalPrice(originalPrice);
+
+        if (userData.coins < finalPrice) {
+          showToast('猪猪币不够啦！买不起这件~');
+          return;
+        }
+
+        userData.coins -= finalPrice;
+        updateCoinDisplay();
+        ownedClothes.push(item);
+        localStorage.setItem('idolClothes', JSON.stringify(ownedClothes));
+        
+        currentCloth = item;
+        localStorage.setItem('idolCurrentCloth', currentCloth);
+        
+        updateIdolCloth();
+        showToast(`购买成功！花费 ${finalPrice} 猪猪币 💸`);
+      });
+    });
+    // ==================== 猪猪跳一跳游戏（真实坐标接管版） ====================
+    const btnStartJump = document.getElementById('btn-start-jump');
+    const jumpGameScreen = document.getElementById('jump-game-screen');
+    const btnExitJump = document.getElementById('btn-exit-jump');
+    const jumpScoreText = document.getElementById('jump-score');
+    const jumpBestText = document.getElementById('jump-best');
+    const jumpGameContainer = document.getElementById('jump-game-container');
+    const jumpPressBtn = document.getElementById('jump-press-btn');
+    const hero = document.getElementById('hero');
+    const blockFront = document.getElementById('block-front');
+    const blockNext = document.getElementById('block-next');
+    const chargeFill = document.querySelector('.charge-fill');
+
+    let jumpState = 'idle'; 
+    let jumpScore = 0;
+    let jumpBest = parseInt(localStorage.getItem('idolJumpBest')) || 0;
+    let comboCount = 0;
+    let isCharging = false;
+    let power = 0;
+    let chargeStartTime = 0;
+    let chargeAnimFrame = null;
+
+    jumpBestText.textContent = jumpBest;
+
+    btnStartJump.addEventListener('click', () => {
+      if (userData.coins < 30) {
+        showToast('猪猪币不足 30 啦！去跑个步吧！');
+        return;
+      }
+      userData.coins -= 30;
+      updateCoinDisplay();
+      
+      gameHallModal.classList.remove('active');
+      startJumpGame();
+    });
+
+    btnExitJump.addEventListener('click', exitJumpGame);
+
+    function startJumpGame() {
+      jumpGameScreen.style.display = 'block';
+      document.querySelector('.quick-tools').style.display = 'none';
+      devIcon.style.display = 'none';
+      
+      jumpScore = 0;
+      comboCount = 0;
+      jumpScoreText.textContent = 0;
+      jumpState = 'idle';
+      chargeFill.style.width = '0%';
+      
+      // 重置猪猪的位移
+      hero.style.transition = 'none';
+      hero.style.transform = 'translate(-50%, -100%)';
+      hero.style.opacity = '1';
+    }
+
+    function exitJumpGame() {
+      jumpGameScreen.style.display = 'none';
+      document.querySelector('.quick-tools').style.display = 'flex';
+      devIcon.style.display = 'block';
+      jumpState = 'idle';
+      isCharging = false;
+      jumpGameContainer.classList.remove('is-charging');
+      cancelAnimationFrame(chargeAnimFrame);
+    }
+
+    // ================= 慢速蓄力 =================
+    function handlePressStart(e) {
+      if (jumpState !== 'idle') return;
+      e.preventDefault();
+      isCharging = true;
+      chargeStartTime = performance.now();
+      jumpState = 'charging';
+      jumpGameContainer.classList.add('is-charging');
+      
+      chargeLoop();
+    }
+
+    function handlePressEnd(e) {
+      if (!isCharging) return;
+      e.preventDefault();
+      isCharging = false;
+      jumpGameContainer.classList.remove('is-charging');
+      jumpState = 'jumping';
+      
+      // 根据蓄力时间决定跳跃力度
+      const jumpPower = power * 1.5; // 最大蓄力 1.5
+      playJumpAnimation(jumpPower);
+    }
+
+    jumpPressBtn.addEventListener('mousedown', handlePressStart);
+    jumpPressBtn.addEventListener('touchstart', handlePressStart, { passive: false });
+    document.addEventListener('mouseup', handlePressEnd);
+    document.addEventListener('touchend', handlePressEnd);
+
+    function chargeLoop() {
+      if (!isCharging) return;
+      const duration = performance.now() - chargeStartTime;
+      // 蓄力 3 秒拉满
+      power = Math.min(duration / 3000, 1.0); 
+      
+      chargeFill.style.width = (power * 100) + '%';
+      chargeAnimFrame = requestAnimationFrame(chargeLoop);
+    }
+
+    // ================= 精确计算飞行 =================
+    function playJumpAnimation(jumpPower) {
+      // 抓取两个方块在屏幕上的真实坐标
+      const rectFront = blockFront.getBoundingClientRect();
+      const rectNext = blockNext.getBoundingClientRect();
+      
+      // 算出粉色方块中心点，相对于绿色方块中心点的差值
+      const deltaX = (rectNext.left + rectNext.width / 2) - (rectFront.left + rectFront.width / 2);
+      const deltaY = (rectNext.top + rectNext.height * 0.35) - (rectFront.top + rectFront.height * 0.35);
+
+      // 如果是完美跳跃，需要的力度
+      const perfectPower = 1.0; 
+
+      // 判断是否成功
+      let isFail = (jumpPower < 0.7 || jumpPower > 1.3);
+      
+      hero.style.transition = 'transform 0.5s ease-out, opacity 0.5s ease';
+      
+      if (isFail) {
+        // 没跳上去（飞太近或太远掉下去）
+        const failX = deltaX * (jumpPower / perfectPower); 
+        const failY = deltaY * (jumpPower / perfectPower) + 100; // 加上下坠
+        hero.style.transform = `translate(calc(-50% + ${failX}px), calc(-100% + ${failY}px)) rotate(45deg)`;
+        hero.style.opacity = '0';
+        setTimeout(endJumpGame, 800);
+        return;
+      }
+      
+      // 成功跳到了粉色方块上
+      hero.style.transform = `translate(calc(-50% + ${deltaX}px), calc(-100% + ${deltaY}px))`;
+      
+      setTimeout(() => {
+        // 完美判定
+        let isPerfect = (jumpPower >= 0.9 && jumpPower <= 1.1);
+        if (isPerfect) {
+          comboCount++;
+          jumpScore += comboCount;
+          showToast(`完美连击 x${comboCount}！+${comboCount}分`);
+        } else {
+          comboCount = 0;
+          jumpScore += 1;
+        }
+        jumpScoreText.textContent = jumpScore;
+
+        // 【视觉欺骗大法】直接把猪猪瞬移回绿方块正上方
+        hero.style.transition = 'none';
+        hero.style.transform = 'translate(-50%, -100%)';
+        
+        jumpState = 'idle';
+      }, 500);
+    }
+
+    // ================= 结算 =================
+    function endJumpGame() {
+      let reward = Math.floor(jumpScore * 0.8);
+      userData.coins += reward;
+      updateCoinDisplay();
+
+      let extraMsg = '';
+      if (jumpScore > jumpBest) {
+        jumpBest = jumpScore;
+        localStorage.setItem('idolJumpBest', jumpBest);
+        userData.coins += 30;
+        updateCoinDisplay();
+        extraMsg = ' (突破最高分，额外奖励 30 币！🎉)';
+      }
+
+      showToast(`游戏结束！分数 ${jumpScore}，奖励 ${reward} 猪猪币！${extraMsg}`, 4000);
+      setTimeout(exitJumpGame, 2000);
     }
   </script>
 </body>
