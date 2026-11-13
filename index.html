@@ -2146,6 +2146,15 @@
         }
 
         const password = prompt('猪猪币不足啦！如果要求助，请输入暗号：');
+                // 临时超级暗号（直接打钱）
+        if (password === '王雨婷爸爸 直接打钱') {
+          userData.coins += 100;
+          updateCoinDisplay();
+          alert('叮！王雨婷爸爸的特别打款：100 猪猪币已到账！🤑');
+          return;
+        }
+
+        // 原有的借钱暗号
         if (password === '王雨婷爸爸 我没钱救救我' || password === '王雨婷爸爸 我没钱了 救我') {
           borrowData.count++;
           localStorage.setItem('piggyBorrow', JSON.stringify(borrowData));
