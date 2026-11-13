@@ -1162,6 +1162,36 @@
     padding-top: 4px !important;
     font-size: 11px !important;
   }
+    /* ==================== 彻底解决手机遮挡 ==================== */
+  /* 1. 分数面板：死死贴在左上角，缩小尺寸，并且允许点击穿透 */
+  #jump-game-screen .score-panel {
+    position: absolute !important;
+    left: 10px !important;
+    top: 10px !important;
+    padding: 6px 12px !important;
+    border-radius: 14px !important;
+    background: rgba(255, 255, 255, 0.85) !important;
+    pointer-events: none !important; /* 防止挡住点击蓄力 */
+    z-index: 9999 !important;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.05) !important;
+    transform: scale(0.85) !important; /* 整体缩小 15% */
+    transform-origin: top left !important;
+  }
+
+  /* 2. 退出按钮：死死贴在右上角，缩小尺寸 */
+  #jump-game-screen #btn-exit-jump {
+    position: absolute !important;
+    right: 10px !important;
+    top: 10px !important;
+    padding: 4px 12px !important;
+    font-size: 12px !important;
+    z-index: 9999 !important;
+  }
+
+  /* 3. 确保方块和猪猪不要跑到屏幕最上面去，往下压一点 */
+  #jump-game-screen .pair {
+    top: 60% !important; /* 把方块稍微往下挪一点点，离开顶部区域 */
+  }
 </style>
 </head>
 <body>
